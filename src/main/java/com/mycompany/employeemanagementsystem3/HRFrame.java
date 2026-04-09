@@ -62,7 +62,7 @@ public class HRFrame extends JFrame implements ActionListener {
         add(sideNav);
         add(content);
         
-       
+        setVisible(true);
     }
 
      @Override
@@ -112,8 +112,5 @@ public class HRFrame extends JFrame implements ActionListener {
         return b;
         
     } 
-    
-    public static void main(String[] args) {
-        new HRFrame().setVisible(true);
-    }
+     
 }
