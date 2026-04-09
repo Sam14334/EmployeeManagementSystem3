@@ -47,7 +47,7 @@ public class LoginFrame extends JFrame implements ActionListener {
         lblLogo.setBounds(136, 70, 128, 128);
 //        lblLogo.setBorder(new MatteBorder(1, 1, 1, 1, BORDER));
         leftPanel.add(lblLogo);
-        
+
         JLabel lblBrand = new JLabel("StaffSync", SwingConstants.CENTER);
         lblBrand.setBounds(120, 200, 170, 40);
 //        lblBrand.setBorder(new MatteBorder(1, 1, 1, 1, BORDER));
@@ -63,7 +63,6 @@ public class LoginFrame extends JFrame implements ActionListener {
         leftPanel.add(lblSubtitle);
 
         // ================= RIGHT SIDE ================= 
-        
         JLabel lblTitle = new JLabel("Log in");
         lblTitle.setBounds(475, 30, 200, 30);
         lblTitle.setForeground(TEXT_PRIMARY); //design
@@ -163,7 +162,16 @@ public class LoginFrame extends JFrame implements ActionListener {
                     new HRFrame();
                     break;
                 case "Manager":
-                    new ManagerFrame();
+                    String[] options = {"Review Employee", "Process Employee Requests"};
+                    
+                    int choice = JOptionPane.showOptionDialog(  null, "Which operation would you like to perform?", "Option Popup", JOptionPane.DEFAULT_OPTION,  JOptionPane.INFORMATION_MESSAGE,
+                            null, options,  options[0] );
+                    
+                    if(choice==0){
+                        new ManagerFrameReview();
+                    }else if(choice ==1){
+                        new ManagerFrameRequests();
+                    }
                     break;
                 case "Employee":
                     new EmployeeFrame();
