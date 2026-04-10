@@ -17,7 +17,7 @@ public class EmployeeFrame extends JFrame implements ActionListener {
 
     public EmployeeFrame(){
         
-        setTitle("EmployeeFrame");
+        setTitle("FrameEmployee");
         setSize(1000,1000);
         setLayout(null);
         setLocationRelativeTo(null);
