@@ -1,19 +1,29 @@
 package com.mycompany.employeemanagementsystem3;
 
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.Image;
 import javax.swing.*;
 import java.awt.event.*;
+import javax.swing.border.LineBorder;
 import javax.swing.table.DefaultTableModel;
 
 public class EmployeeFrame extends JFrame implements ActionListener {
+    
+    private final Color ACCENT_BLUE = new Color(52, 152, 219);
     
     private JLabel lblERS, lblEmpID, lblfirstName, lbllastName, lblrequestType, lbldescription;
     private JTextField txtEmpID, txtfirstName, txtlastName;
     private JComboBox<String> cbrequest;
     private JTextArea txtDescription;
-    private JButton btnSubmit, btnDelete, btnUpdate;
+    private JButton btnSubmit, btnDelete, btnUpdate, btnSignout;
     private JTable table;
     private JScrollPane scroll, descScroll;
     private DefaultTableModel tableModel;
+    private JPanel sideNav;
+    private final Color SIDEBAR_BG = new Color(34, 45, 57);
 
     public EmployeeFrame(){
         
@@ -22,47 +32,51 @@ public class EmployeeFrame extends JFrame implements ActionListener {
         setLayout(null);
         setLocationRelativeTo(null);
         
+       
+        sideNav = new JPanel();
+        sideNav.setSize(260,1000);
+        sideNav.setBackground(SIDEBAR_BG);
+        sideNav.setLayout(null);
+        add(sideNav);
+        
+        ImageIcon rawIcon = new ImageIcon("src\\main\\java\\images\\karlo.png"); 
+
+        
+        Image scaledImg = rawIcon.getImage().getScaledInstance(100, 100, Image.SCALE_SMOOTH);
+        ImageIcon finalAvatar = new ImageIcon(scaledImg);
+        
+
+       
+        JLabel lblProfilePic = new JLabel(finalAvatar);
+        lblProfilePic.setBounds(80, 30, 100, 100);
+
+       
+        lblProfilePic.setBorder(new LineBorder(new Color(255, 255, 255, 50), 2)); 
+
+        sideNav.add(lblProfilePic);
+        
+        JLabel lblLogo = new JLabel(new ImageIcon("src\\main\\java\\images\\StaffSyncLogo128.png"));
+        lblLogo.setBounds(66, 185, 128, 128); 
+        sideNav.add(lblLogo);
         
         lblERS = new JLabel("Employee Request System");
-        lblERS.setBounds(430, 20, 300, 30);
+        lblERS.setBounds(450, 20, 300, 30);
+        lblERS.setFont(new Font("Segoe UI", Font.BOLD, 20));
         add(lblERS);
         
-        
-        lblEmpID = new JLabel("Employee ID:");
-        lblEmpID.setBounds(50, 60, 100, 25);
-        add(lblEmpID);
-
-        txtEmpID = new JTextField();
-        txtEmpID.setBounds(180, 60, 150, 25);
-        add(txtEmpID);
-
-        lblfirstName = new JLabel("First Name:");
-        lblfirstName.setBounds(50, 100, 100, 25);
-        add(lblfirstName);
-
-        txtfirstName = new JTextField();
-        txtfirstName.setBounds(180, 100, 150, 25);
-        add(txtfirstName);
-
-        lbllastName = new JLabel("Last Name:");
-        lbllastName.setBounds(50, 140, 100, 25);
-        add(lbllastName);
-
-        txtlastName = new JTextField();
-        txtlastName.setBounds(180, 140, 150, 25);
-        add(txtlastName);
-        
         lblrequestType = new JLabel("Request Type:");
-        lblrequestType.setBounds(50, 180, 100, 30);
+        lblrequestType.setBounds(300, 90, 150, 30);
+        lblrequestType.setFont(new Font("Segoe UI", Font.BOLD, 15));
         add(lblrequestType);
         
         String[] types = {"", "Leave", "Overtime", "Expenses"};
         cbrequest = new JComboBox<>(types);
-        cbrequest.setBounds(180, 180, 150, 30);
+        cbrequest.setBounds(430, 90, 150, 30);
         add(cbrequest);
         
         lbldescription = new JLabel("Description:");
-        lbldescription.setBounds(50, 220, 100, 30);
+        lbldescription.setBounds(300, 150, 150, 30);
+        lbldescription.setFont(new Font("Segoe UI", Font.BOLD, 15));
         add(lbldescription);
         
         txtDescription = new JTextArea();
@@ -70,30 +84,43 @@ public class EmployeeFrame extends JFrame implements ActionListener {
         txtDescription.setWrapStyleWord(true);
 
         descScroll = new JScrollPane(txtDescription);
-        descScroll.setBounds(180, 220, 480, 200);
+        descScroll.setBounds(430, 150, 480, 200);
         add(descScroll);
        
         btnSubmit = new JButton("Submit");
-        btnSubmit.setBounds(180, 430, 120, 30);
+        btnSubmit.setBounds(430, 380, 150, 50);
+        btnSubmit.setBackground(ACCENT_BLUE);
+        btnSubmit.setForeground(Color.WHITE);
         add(btnSubmit);
     
         btnUpdate = new JButton("Update Selected");
-        btnUpdate.setBounds(330, 430, 150, 30);
+        btnUpdate.setBounds(595, 380, 150, 50);
+        btnUpdate.setBackground(ACCENT_BLUE);
+        btnUpdate.setForeground(Color.WHITE);
         add(btnUpdate);
         
         btnDelete = new JButton("Delete Selected");
-        btnDelete.setBounds(510, 430, 150, 30);
+        btnDelete.setBounds(760, 380, 150, 50);
+        btnDelete.setBackground(ACCENT_BLUE);
+        btnDelete.setForeground(Color.WHITE);
         add(btnDelete);
+        
+        btnSignout = new JButton("Sign out →");
+        btnSignout.setBounds(50,900,150,50);
+        btnSignout.setBackground(new Color(41, 128, 185));
+        btnSignout.setForeground(Color.WHITE);
+        sideNav.add(btnSignout);
+        
         
         tableModel = new DefaultTableModel();
         tableModel.setColumnIdentifiers(new String[]{
             "Employee ID", "First Name", "Last Name", "Type", "Description", "Status"
         });
 
-        table = new JTable(tableModel);
-        scroll = new JScrollPane(table);
-        scroll.setBounds(50,470,880,250);
-        add(scroll);
+//        table = new JTable(tableModel);
+//        scroll = new JScrollPane(table);
+//        scroll.setBounds(50,470,880,250);
+//        add(scroll);
         
         
         btnSubmit.addActionListener(this);
@@ -165,7 +192,7 @@ public class EmployeeFrame extends JFrame implements ActionListener {
 
     private void handleDelete(){
         int row = table.getSelectedRow();
-
+//test
         if(row == -1){
             JOptionPane.showMessageDialog(this, "Select a row first.");
             return;
