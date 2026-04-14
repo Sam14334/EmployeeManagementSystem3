@@ -264,11 +264,11 @@ public class ManagerFrameReview extends JFrame implements ActionListener {
        
     }
 
-    public static void main(String[] args) {
-        // Apply System Look and Feel for cleaner components
-        try { UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName()); } catch (Exception e) {}
-        new ManagerFrameReview();
-    }
+//    public static void main(String[] args) {
+//        // Apply System Look and Feel for cleaner components
+//        try { UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName()); } catch (Exception e) {}
+//        new ManagerFrameReview();
+//    }
 
     
 }

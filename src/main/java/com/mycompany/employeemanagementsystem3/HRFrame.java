@@ -220,9 +220,9 @@ public class HRFrame extends JFrame implements ActionListener {
         JOptionPane.showMessageDialog(this, msg, title, JOptionPane.INFORMATION_MESSAGE);
     }
 
-    public static void main(String[] args) {
-        try { UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName()); } catch (Exception ignored) {}
-        SwingUtilities.invokeLater(() -> new HRFrame());
-    }
+//    public static void main(String[] args) {
+//        try { UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName()); } catch (Exception ignored) {}
+//        SwingUtilities.invokeLater(() -> new HRFrame());
+//    }
 
 }
