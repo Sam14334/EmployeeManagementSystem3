@@ -162,16 +162,7 @@ public class LoginFrame extends JFrame implements ActionListener {
                     new HRFrame();
                     break;
                 case "Manager":
-                    String[] options = {"Review Employee", "Process Employee Requests"};
-                    
-                    int choice = JOptionPane.showOptionDialog(  null, "Which operation would you like to perform?", "Option Popup", JOptionPane.DEFAULT_OPTION,  JOptionPane.INFORMATION_MESSAGE,
-                            null, options,  options[0] );
-                    
-                    if(choice==0){
-                        new ManagerFrameReview();
-                    }else if(choice ==1){
-                        new ManagerFrameRequests();
-                    }
+                   new ManagerSelectionFrame();
                     break;
                 case "Employee":
                     new EmployeeFrame();

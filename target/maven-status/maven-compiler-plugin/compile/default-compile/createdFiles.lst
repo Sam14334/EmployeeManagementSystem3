@@ -2,6 +2,7 @@ com\mycompany\employeemanagementsystem3\ManagerFrameRequests$1.class
 com\mycompany\employeemanagementsystem3\HRFrame$1.class
 com\mycompany\employeemanagementsystem3\EmployeeManagementSystem3.class
 com\mycompany\employeemanagementsystem3\HRFrame.class
+com\mycompany\employeemanagementsystem3\ManagerSelectionFrame.class
 com\mycompany\employeemanagementsystem3\LoginFrame.class
 com\mycompany\employeemanagementsystem3\ManagerFrameReview$2.class
 com\mycompany\employeemanagementsystem3\ManagerFrameRequests.class
