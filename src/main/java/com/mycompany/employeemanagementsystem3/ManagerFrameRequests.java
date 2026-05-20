@@ -1,209 +1,206 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package com.mycompany.employeemanagementsystem3;
 
-import javax.swing.*;
-import javax.swing.table.*;
-import javax.swing.border.*;
 import java.awt.*;
 import java.awt.event.*;
+import javax.swing.*;
+import javax.swing.border.LineBorder;
+import javax.swing.table.DefaultTableModel;
 
 public class ManagerFrameRequests extends JFrame implements ActionListener {
 
-    private final Color SIDEBAR_BG = new Color(34, 45, 57);
-    private final Color CONTENT_BG = new Color(240, 242, 245);
-    private final Color SUCCESS_GREEN = new Color(40, 167, 69);
-    private final Color DANGER_RED = new Color(231, 76, 60);
-    private final Color TEXT_DARK = new Color(44, 62, 80);
-    private final Color CARD_BG = Color.WHITE;
-
-    JTable table;
-    DefaultTableModel model;
-    JButton btnAccept, btnDeny;
+    private JPanel sideBar, mainContent;
+    private JTable requestTable;
+    private JButton btnApprove, btnDeny, btnBack;
 
     public ManagerFrameRequests() {
         setTitle("StaffSync - Manager - Process Requests");
         setSize(1000, 1000);
-        setLayout(null);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
-        getContentPane().setBackground(CONTENT_BG);
+        setLayout(null);
 
-        //SIDEBAR
-        JPanel sideNav = new JPanel(null);
-        sideNav.setBackground(SIDEBAR_BG);
-        sideNav.setBounds(0, 0, 260, 1000);
-        add(sideNav);
+    
+        sideBar = new JPanel();
+        sideBar.setBackground(new Color(33, 47, 61));
+        sideBar.setBounds(0, 0, 250, 1000);
+        sideBar.setLayout(null);
+        add(sideBar);
 
-        JLabel lblUser = new JLabel("Manager Panel", SwingConstants.CENTER);
+      
+        ImageIcon rawIcon = new ImageIcon("src\\main\\java\\images\\karlo.png");
+        Image scaledImg = rawIcon.getImage().getScaledInstance(100, 100, Image.SCALE_SMOOTH);
+        ImageIcon finalAvatar = new ImageIcon(scaledImg);
+
+        JLabel lblProfilePic = new JLabel(finalAvatar);
+        lblProfilePic.setBounds(80, 30, 100, 100);
+        lblProfilePic.setBorder(new LineBorder(new Color(255, 255, 255, 50), 2));
+        sideBar.add(lblProfilePic);
+
+      
+        JLabel lblUser = new JLabel("Manager | Karlo", SwingConstants.CENTER);
         lblUser.setForeground(Color.LIGHT_GRAY);
-        lblUser.setFont(new Font("Segoe UI", Font.BOLD, 16));
-        lblUser.setBounds(30, 100, 200, 30);
-        sideNav.add(lblUser);
+        lblUser.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        lblUser.setBounds(30, 140, 200, 25);
+        sideBar.add(lblUser);
 
-        //EXIT BUTTON 
-        JButton btnExit = createStyledBtn("⏻ Exit", 0, DANGER_RED);
+     
+        JLabel lblLogo = new JLabel(new ImageIcon("src\\main\\java\\images\\StaffSyncLogo128.png"));
+        lblLogo.setForeground(Color.GRAY);
+        lblLogo.setBounds(66, 185, 128, 128);
+        lblLogo.setHorizontalAlignment(SwingConstants.CENTER);
+        sideBar.add(lblLogo);
 
-        int sidebarHeight = sideNav.getHeight(); // 1000
-        int btnHeight = 45;
-        int bottomMargin = 80;
+        
+        btnApprove = new JButton("Approve Request");
+        btnApprove.setBounds(35, 340, 180, 45);
+        btnApprove.setBackground(new Color(40, 167, 69));
+        btnApprove.setForeground(Color.WHITE);
+        btnApprove.setFocusPainted(false);
+        btnApprove.setBorderPainted(false);
+        btnApprove.setFont(new Font("SansSerif", Font.BOLD, 13));
+        btnApprove.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        btnApprove.addActionListener(this);
+        sideBar.add(btnApprove);
 
-        btnExit.setBounds(30, sidebarHeight - btnHeight - bottomMargin, 200, btnHeight);
+        btnDeny = new JButton("Deny Request");
+        btnDeny.setBounds(35, 400, 180, 45);
+        btnDeny.setBackground(new Color(231, 76, 60));
+        btnDeny.setForeground(Color.WHITE);
+        btnDeny.setFocusPainted(false);
+        btnDeny.setBorderPainted(false);
+        btnDeny.setFont(new Font("SansSerif", Font.BOLD, 13));
+        btnDeny.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        btnDeny.addActionListener(this);
+        sideBar.add(btnDeny);
 
-        sideNav.add(btnExit);
-        btnExit.addActionListener(e -> System.exit(0));
+        btnBack = new JButton("Back →");
+        btnBack.setBounds(35, 460, 180, 45);
+        btnBack.setBackground(Color.GRAY);
+        btnBack.setForeground(Color.WHITE);
+        btnBack.setFocusPainted(false);
+        btnBack.setBorderPainted(false);
+        btnBack.setFont(new Font("SansSerif", Font.BOLD, 13));
+        btnBack.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        btnBack.addActionListener(this);
+        sideBar.add(btnBack);
 
-        //TITLE
+        
+        mainContent = new JPanel();
+        mainContent.setBackground(new Color(245, 245, 245));
+        mainContent.setLayout(null);
+        mainContent.setBounds(250, 0, 750, 1000);
+        add(mainContent);
+
         JLabel lblTitle = new JLabel("Employee Requests");
-        lblTitle.setFont(new Font("Segoe UI", Font.BOLD, 28));
-        lblTitle.setForeground(TEXT_DARK);
-        lblTitle.setBounds(300, 30, 400, 40);
-        add(lblTitle);
+        lblTitle.setFont(new Font("SansSerif", Font.BOLD, 28));
+        lblTitle.setForeground(new Color(33, 47, 61));
+        lblTitle.setBounds(30, 30, 300, 40);
+        mainContent.add(lblTitle);
 
-        //TABLE CARD
-        JPanel tableCard = new JPanel(new BorderLayout());
-        tableCard.setBackground(CARD_BG);
-        tableCard.setBounds(300, 100, 650, 400);
-        tableCard.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
-        add(tableCard);
+        
+        String[] columns = {"ID", "Employee Name", "Request Type", "Date Submitted", "Status", "Notes"};
+        String[][] data = {
+            {"REQ-001", "Jomar N. Pangilinan", "Leave", "2026-04-01", "Pending", "-"},
+            {"REQ-002", "Micheal P. Samia", "Overtime", "2026-04-02", "Approved", "Approved by HR"},
+            {"REQ-003", "Karlo H. Alatiit", "Leave", "2026-04-03", "Pending", "-"},
+            {"REQ-004", "Ezekiel Parao", "Transfer", "2026-04-04", "Pending", "-"},
+            {"REQ-005", "Rich Jasper C. Federio", "Resignation", "2026-04-05", "Denied", "Incomplete papers"}
+        };
 
-        String[] cols = {"ID", "Employee Name", "Request Type", "Date", "Status", "Note"};
-        model = new DefaultTableModel(cols, 0);
-
-        model.addRow(new Object[]{"1", "Juan Dela Cruz", "Leave", "2026-04-01", "Pending", ""});
-        model.addRow(new Object[]{"2", "Maria Santos", "Overtime", "2026-04-02", "Approved", ""});
-        model.addRow(new Object[]{"3", "Pedro Reyes", "Leave", "2026-04-03", "Pending", ""});
-
-        table = new JTable(model) {
-            public boolean isCellEditable(int r, int c) {
+        DefaultTableModel model = new DefaultTableModel(data, columns) {
+            @Override
+            public boolean isCellEditable(int row, int column) {
                 return false;
             }
         };
 
-        styleTable(table);
+        requestTable = new JTable(model);
+        requestTable.setRowHeight(45);
+        requestTable.setFont(new Font("SansSerif", Font.PLAIN, 13));
+        
+        requestTable.getTableHeader().setBackground(new Color(33, 47, 61));
+        requestTable.getTableHeader().setForeground(Color.WHITE);
+        requestTable.getTableHeader().setFont(new Font("SansSerif", Font.BOLD, 13));
+        requestTable.setSelectionBackground(new Color(52, 152, 219, 40));
+        requestTable.setShowVerticalLines(false);
+        requestTable.setGridColor(new Color(230, 230, 230));
 
-       
-        table.getColumnModel().getColumn(5).setPreferredWidth(200);
+    
+        requestTable.getColumnModel().getColumn(0).setPreferredWidth(80);
+        requestTable.getColumnModel().getColumn(1).setPreferredWidth(150);
+        requestTable.getColumnModel().getColumn(2).setPreferredWidth(100);
+        requestTable.getColumnModel().getColumn(3).setPreferredWidth(110);
+        requestTable.getColumnModel().getColumn(4).setPreferredWidth(100);
+        requestTable.getColumnModel().getColumn(5).setPreferredWidth(200);
 
-        JScrollPane pane = new JScrollPane(table);
-        pane.getViewport().setBackground(Color.WHITE);
-        pane.setBorder(new LineBorder(new Color(240, 240, 240)));
+        JScrollPane scrollPane = new JScrollPane(requestTable);
+        scrollPane.setBounds(30, 100, 690, 750);
+        scrollPane.setBorder(BorderFactory.createEmptyBorder());
+        scrollPane.getViewport().setBackground(new Color(245, 245, 245));
+        mainContent.add(scrollPane);
 
-        tableCard.add(pane, BorderLayout.CENTER);
-
-        //BUTTONS UNDER TABLE
-        btnAccept = createStyledBtn("✔ Approve Request", 0, SUCCESS_GREEN);
-        btnAccept.setBounds(320, 520, 200, 45);
-        add(btnAccept);
-
-        btnDeny = createStyledBtn("✖ Deny Request", 0, DANGER_RED);
-        btnDeny.setBounds(580, 520, 200, 45);
-        add(btnDeny);
-
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setVisible(true);
     }
 
-    //BUTTON STYLE
-    private JButton createStyledBtn(String text, int y, Color color) {
-        JButton b = new JButton(text) {
-            protected void paintComponent(Graphics g) {
-                Graphics2D g2 = (Graphics2D) g.create();
-                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                g2.setColor(getBackground());
-                g2.fillRoundRect(0, 0, getWidth(), getHeight(), 10, 10);
-                super.paintComponent(g);
-                g2.dispose();
-            }
-        };
-        b.setBackground(color);
-        b.setForeground(Color.WHITE);
-        b.setFont(new Font("Segoe UI", Font.BOLD, 14));
-        b.setFocusPainted(false);
-        b.setBorderPainted(false);
-        b.setContentAreaFilled(false);
-        b.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        b.addActionListener(this);
-        return b;
-    }
-
-    //TABLE STYLE
-    private void styleTable(JTable table) {
-        table.setRowHeight(40);
-        table.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-        table.setGridColor(new Color(245, 245, 245));
-        table.setSelectionBackground(new Color(235, 245, 255));
-        table.setSelectionForeground(Color.BLACK);
-        table.setShowVerticalLines(false);
-
-        JTableHeader header = table.getTableHeader();
-        header.setFont(new Font("Segoe UI", Font.BOLD, 14));
-        header.setBackground(Color.WHITE);
-        header.setForeground(new Color(100, 100, 100));
-        header.setPreferredSize(new Dimension(100, 45));
-        header.setBorder(new MatteBorder(0, 0, 2, 0, new Color(240, 240, 240)));
-        ((DefaultTableCellRenderer) header.getDefaultRenderer()).setHorizontalAlignment(JLabel.LEFT);
-    }
-
-    //LOGIC
     @Override
     public void actionPerformed(ActionEvent e) {
-        int row = table.getSelectedRow();
-
-        if (row == -1) {
-            JOptionPane.showMessageDialog(this, "Select a request first.");
-            return;
-        }
-
-        String status = model.getValueAt(row, 4).toString();
-
-        if (!status.equals("Pending")) {
-            JOptionPane.showMessageDialog(this, "Already processed.");
-            return;
-        }
-
-        JTextArea noteArea = new JTextArea(5, 20);
-        JScrollPane scroll = new JScrollPane(noteArea);
-
-        int confirm;
-
-        // APPROVE
-        if (e.getSource() == btnAccept) {
-            confirm = JOptionPane.showConfirmDialog(this, scroll,
-                    "Enter approval note (required)", JOptionPane.OK_CANCEL_OPTION);
-
-            if (confirm == JOptionPane.OK_OPTION) {
-                String note = noteArea.getText().trim();
-
-                if (note.isEmpty()) {
-                    JOptionPane.showMessageDialog(this, "Note is required!");
-                    return;
-                }
-
-                model.setValueAt("Approved", row, 4);
-                model.setValueAt(note, row, 5);
+        
+        
+        if (e.getSource() == btnApprove) {
+            int row = requestTable.getSelectedRow();
+            if (row == -1) {
+                JOptionPane.showMessageDialog(this, "Please select a request to approve.");
+                return;
+            }
+            
+            String status = requestTable.getValueAt(row, 4).toString();
+            if (status.equals("Approved") || status.equals("Denied")) {
+                JOptionPane.showMessageDialog(this, "Request already processed.");
+                return;
+            }
+            
+          
+            String note = JOptionPane.showInputDialog(this, "Enter approval note:", "Approved by Manager");
+            
+            if (note != null && !note.trim().isEmpty()) {
+                requestTable.setValueAt("Approved", row, 4);
+                requestTable.setValueAt(note, row, 5);
+                JOptionPane.showMessageDialog(this, "Request approved successfully.");
+            } else {
+                JOptionPane.showMessageDialog(this, "Note is required.");
             }
         }
-
-        // DENY
+        
+       
         if (e.getSource() == btnDeny) {
-            confirm = JOptionPane.showConfirmDialog(this, scroll,
-                    "Enter reason for denial (required)", JOptionPane.OK_CANCEL_OPTION);
-
-            if (confirm == JOptionPane.OK_OPTION) {
-                String note = noteArea.getText().trim();
-
-                if (note.isEmpty()) {
-                    JOptionPane.showMessageDialog(this, "Note is required!");
-                    return;
-                }
-
-                model.setValueAt("Denied", row, 4);
-                model.setValueAt(note, row, 5);
+            int row = requestTable.getSelectedRow();
+            if (row == -1) {
+                JOptionPane.showMessageDialog(this, "Please select a request to deny.");
+                return;
+            }
+            
+            String status = requestTable.getValueAt(row, 4).toString();
+            if (status.equals("Approved") || status.equals("Denied")) {
+                JOptionPane.showMessageDialog(this, "Request already processed.");
+                return;
+            }
+            
+       
+            String reason = JOptionPane.showInputDialog(this, "Enter denial reason:", "Denied");
+            
+            if (reason != null && !reason.trim().isEmpty()) {
+                requestTable.setValueAt("Denied", row, 4);
+                requestTable.setValueAt(reason, row, 5);
+                JOptionPane.showMessageDialog(this, "Request denied.");
+            } else {
+                JOptionPane.showMessageDialog(this, "Reason is required.");
             }
         }
-
+        
+       
+        if (e.getSource() == btnBack) {
+            dispose();
+            new ManagerFrameReview();
+        }
     }
- 
 }

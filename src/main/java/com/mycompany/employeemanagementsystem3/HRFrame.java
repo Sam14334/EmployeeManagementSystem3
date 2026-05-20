@@ -23,6 +23,7 @@ public class HRFrame extends JFrame implements ActionListener {
 
     public HRFrame() {
         setTitle("StaffSync - HR Dashboard");
+        setLayout(null);
         setSize(1000, 1000);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
