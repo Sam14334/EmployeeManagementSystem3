@@ -12,7 +12,7 @@ public class ManagerFrameReviewPerf extends JFrame {
     private JPanel sideBar, mainContent, cardPanel;
 
     public ManagerFrameReviewPerf(String name, String address, String contact, String position) {
-        setTitle("Employee Review - " + name);
+        setTitle("StaffSync - Manager - Employee Review" + name);
         setSize(1000, 1000);
         setLayout(null);
         setLocationRelativeTo(null);

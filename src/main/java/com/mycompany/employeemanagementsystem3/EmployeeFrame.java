@@ -2,6 +2,7 @@ package com.mycompany.employeemanagementsystem3;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Image;
@@ -164,13 +165,15 @@ public class EmployeeFrame extends JFrame implements ActionListener {
         btnViewDetails.setFont(new Font("Segoe UI", Font.BOLD, 15));
         sideNav.add(btnViewDetails);
         
-        btnSignout = new JButton("Sign out →");
-        btnSignout.setBounds(50,900,150,50);
-        btnSignout.setBackground(new Color(41, 128, 185));
+       btnSignout = new JButton("Sign out →");
+        btnSignout.setBounds(35,890,180,50);
+        btnSignout.setBackground(Color.RED);
         btnSignout.setForeground(Color.WHITE);
         btnSignout.setFocusPainted(false);
         btnSignout.setBorderPainted(false);
-        btnSignout.setFont(new Font("Segoe UI", Font.BOLD, 13));
+        btnSignout.setFont(new Font("SansSerif", Font.BOLD, 13));
+        btnSignout.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        btnSignout.addActionListener(this);
         sideNav.add(btnSignout);
         
         tableModel = new DefaultTableModel();

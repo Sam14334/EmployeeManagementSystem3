@@ -10,7 +10,7 @@ public class ManagerFrameRequests extends JFrame implements ActionListener {
 
     private JPanel sideBar, mainContent;
     private JTable requestTable;
-    private JButton btnApprove, btnDeny, btnBack;
+    private JButton btnApprove, btnDeny, btnBack, btnSignOut, btnEmpRecords, btnEmpRequests;
 
     public ManagerFrameRequests() {
         setTitle("StaffSync - Manager - Process Requests");
@@ -72,17 +72,17 @@ public class ManagerFrameRequests extends JFrame implements ActionListener {
         btnDeny.setCursor(new Cursor(Cursor.HAND_CURSOR));
         btnDeny.addActionListener(this);
         sideBar.add(btnDeny);
-
-        btnBack = new JButton("Back →");
-        btnBack.setBounds(35, 460, 180, 45);
-        btnBack.setBackground(Color.GRAY);
-        btnBack.setForeground(Color.WHITE);
-        btnBack.setFocusPainted(false);
-        btnBack.setBorderPainted(false);
-        btnBack.setFont(new Font("SansSerif", Font.BOLD, 13));
-        btnBack.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        btnBack.addActionListener(this);
-        sideBar.add(btnBack);
+        
+        btnSignOut = new JButton("Sign out →");
+        btnSignOut.setBounds(35,890,180,50);
+        btnSignOut.setBackground(Color.RED);
+        btnSignOut.setForeground(Color.WHITE);
+        btnSignOut.setFocusPainted(false);
+        btnSignOut.setBorderPainted(false);
+        btnSignOut.setFont(new Font("SansSerif", Font.BOLD, 13));
+        btnSignOut.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        btnSignOut.addActionListener(this);
+        sideBar.add(btnSignOut);
 
         
         mainContent = new JPanel();
@@ -90,11 +90,35 @@ public class ManagerFrameRequests extends JFrame implements ActionListener {
         mainContent.setLayout(null);
         mainContent.setBounds(250, 0, 750, 1000);
         add(mainContent);
+        
+        btnEmpRecords = new JButton("Employee Records");
+        btnEmpRecords.setFont(new Font("SansSerif", Font.BOLD, 18));
+        btnEmpRecords.setBackground(new Color(33, 47, 61));
+        btnEmpRecords.setForeground(Color.WHITE);
+        btnEmpRecords.setBounds(30, 30, 240, 45);
+        btnEmpRecords.setFocusPainted(false);
+        btnEmpRecords.setBorderPainted(false);
+        btnEmpRecords.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        btnEmpRecords.addActionListener(this);
+
+        mainContent.add(btnEmpRecords);
+
+        btnEmpRequests = new JButton("Employee Requests");
+        btnEmpRequests.setFont(new Font("SansSerif", Font.BOLD, 18));
+        btnEmpRequests.setBackground(new Color(33, 47, 61));
+        btnEmpRequests.setForeground(Color.WHITE);
+        btnEmpRequests.setBounds(285, 30, 240, 45);
+        btnEmpRequests.setFocusPainted(false);
+        btnEmpRequests.setBorderPainted(false);
+        btnEmpRequests.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        btnEmpRequests.addActionListener(this);
+
+        mainContent.add(btnEmpRequests);
 
         JLabel lblTitle = new JLabel("Employee Requests");
         lblTitle.setFont(new Font("SansSerif", Font.BOLD, 28));
         lblTitle.setForeground(new Color(33, 47, 61));
-        lblTitle.setBounds(30, 30, 300, 40);
+        lblTitle.setBounds(30, 90, 300, 40);
         mainContent.add(lblTitle);
 
         
@@ -123,7 +147,7 @@ public class ManagerFrameRequests extends JFrame implements ActionListener {
         requestTable.getTableHeader().setFont(new Font("SansSerif", Font.BOLD, 13));
         requestTable.setSelectionBackground(new Color(52, 152, 219, 40));
         requestTable.setShowVerticalLines(false);
-        requestTable.setGridColor(new Color(230, 230, 230));
+        requestTable.setGridColor(Color.GRAY);
 
     
         requestTable.getColumnModel().getColumn(0).setPreferredWidth(80);
@@ -134,7 +158,7 @@ public class ManagerFrameRequests extends JFrame implements ActionListener {
         requestTable.getColumnModel().getColumn(5).setPreferredWidth(200);
 
         JScrollPane scrollPane = new JScrollPane(requestTable);
-        scrollPane.setBounds(30, 100, 690, 750);
+        scrollPane.setBounds(30, 165, 690, 750);
         scrollPane.setBorder(BorderFactory.createEmptyBorder());
         scrollPane.getViewport().setBackground(new Color(245, 245, 245));
         mainContent.add(scrollPane);
@@ -198,7 +222,12 @@ public class ManagerFrameRequests extends JFrame implements ActionListener {
         }
         
        
-        if (e.getSource() == btnBack) {
+        if (e.getSource() == btnSignOut) {
+            dispose();
+            new LoginFrame();
+        }
+        
+        if(e.getSource()== btnEmpRecords){
             dispose();
             new ManagerFrameReview();
         }

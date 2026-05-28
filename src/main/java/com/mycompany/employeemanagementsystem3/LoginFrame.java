@@ -7,9 +7,9 @@ import java.awt.*;
 
 public class LoginFrame extends JFrame implements ActionListener {
 
-    JTextField txtUsername;
-    JPasswordField txtPassword;
-    JComboBox<String> cbRole;
+    private JTextField txtUsername;
+    private JPasswordField txtPassword;
+    private JComboBox<String> cbRole;
 
     JButton btnSubmit, btnClear;
 
@@ -138,7 +138,7 @@ public class LoginFrame extends JFrame implements ActionListener {
                     new HRFrame();
                     break;
                 case "Manager":
-                    new ManagerFrameReview();
+                    new ManagerSelectionFrame();
                     break;
                 case "Employee":
                     new EmployeeFrame();
