@@ -4,6 +4,11 @@ import javax.swing.*;
 import java.awt.event.*;
 import javax.swing.border.MatteBorder;
 import java.awt.*;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 
 public class LoginFrame extends JFrame implements ActionListener {
 
@@ -126,29 +131,62 @@ public class LoginFrame extends JFrame implements ActionListener {
         String password = new String(txtPassword.getPassword());
         String selectedRole = (String) cbRole.getSelectedItem();
 
-        if (selectedRole.equals("Select Position")) {
-            JOptionPane.showMessageDialog(this, "Please select a role.");
+        if (selectedRole.equals("Select Position") || username.isBlank() || password.isBlank()) {
+            JOptionPane.showMessageDialog(this, "Please fill in all the fields.");
             return;
         }
 
-        if (username.equals("admin") && password.equals("123")) {
+        try {
+            Connection connection = (Connection) DriverManager.getConnection("jdbc:mysql://localhost:3306/db_employee","root", "");
 
-            switch (selectedRole) {
-                case "HR Staff":
-                    new HRFrame();
-                    break;
-                case "Manager":
-                    new ManagerSelectionFrame();
-                    break;
-                case "Employee":
-                    new EmployeeFrame();
-                    break;
+            PreparedStatement statement = (PreparedStatement) connection
+                    .prepareStatement("Select acc_username, acc_password from accounts where acc_username=? and acc_password=? and acc_role=?");
+
+            statement.setString(1, username);
+            statement.setString(2, password);
+            statement.setString(3, selectedRole);
+
+            ResultSet rs = statement.executeQuery();
+
+            if (rs.next()) {
+                dispose();
+                switch (selectedRole) {
+                    case "HR Staff":
+                        new HRFrame();
+                        break;
+                    case "Manager":
+                        new ManagerSelectionFrame();
+                        break;
+                    case "Employee":
+                        new EmployeeFrame();
+                        break;
+                }
+            } else {
+                JOptionPane.showMessageDialog(this, "Wrong Credentials.");
             }
 
-            dispose();
-
-        } else {
-            JOptionPane.showMessageDialog(this, "Invalid username or password.");
+        } catch (SQLException sqlException) {
+            sqlException.printStackTrace();
         }
+
+//        if (username.equals("admin") && password.equals("123")) {
+//
+//            switch (selectedRole) {
+//                case "HR Staff":
+//                    new HRFrame();
+//                    break;
+//                case "Manager":
+//                    new ManagerSelectionFrame();
+//                    break;
+//                case "Employee":
+//                    new EmployeeFrame();
+//                    break;
+//            }
+//
+//            dispose();
+//
+//        } else {
+//            JOptionPane.showMessageDialog(this, "Invalid username or password.");
+//        }
     }
 }
