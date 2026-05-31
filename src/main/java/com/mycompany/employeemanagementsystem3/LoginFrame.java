@@ -137,7 +137,7 @@ public class LoginFrame extends JFrame implements ActionListener {
         }
 
         try {
-            Connection connection = (Connection) DriverManager.getConnection("jdbc:mysql://localhost:3306/db_employee","root", "");
+            Connection connection = (Connection) DriverManager.getConnection("jdbc:mysql://localhost:3306/db_employee_management","root", "");
 
             PreparedStatement statement = (PreparedStatement) connection
                     .prepareStatement("Select acc_username, acc_password from accounts where acc_username=? and acc_password=? and acc_role=?");
