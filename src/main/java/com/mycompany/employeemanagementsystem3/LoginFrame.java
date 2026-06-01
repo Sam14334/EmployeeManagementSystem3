@@ -155,7 +155,7 @@ public class LoginFrame extends JFrame implements ActionListener {
                         new HRFrame();
                         break;
                     case "Manager":
-                        new ManagerSelectionFrame();
+                        new ManagerFrameRequests();
                         break;
                     case "Employee":
                         new EmployeeFrame();

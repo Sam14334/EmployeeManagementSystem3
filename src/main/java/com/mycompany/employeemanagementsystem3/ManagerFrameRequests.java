@@ -10,7 +10,7 @@ public class ManagerFrameRequests extends JFrame implements ActionListener {
 
     private JPanel sideBar, mainContent;
     private JTable requestTable;
-    private JButton btnApprove, btnDeny, btnBack, btnSignOut, btnEmpRecords, btnEmpRequests;
+    private JButton btnApprove, btnDeny, btnSignOut;
 
     public ManagerFrameRequests() {
         setTitle("StaffSync - Manager - Process Requests");
@@ -91,29 +91,7 @@ public class ManagerFrameRequests extends JFrame implements ActionListener {
         mainContent.setBounds(250, 0, 750, 1000);
         add(mainContent);
         
-        btnEmpRecords = new JButton("Employee Records");
-        btnEmpRecords.setFont(new Font("SansSerif", Font.BOLD, 18));
-        btnEmpRecords.setBackground(new Color(33, 47, 61));
-        btnEmpRecords.setForeground(Color.WHITE);
-        btnEmpRecords.setBounds(30, 30, 240, 45);
-        btnEmpRecords.setFocusPainted(false);
-        btnEmpRecords.setBorderPainted(false);
-        btnEmpRecords.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        btnEmpRecords.addActionListener(this);
-
-        mainContent.add(btnEmpRecords);
-
-        btnEmpRequests = new JButton("Employee Requests");
-        btnEmpRequests.setFont(new Font("SansSerif", Font.BOLD, 18));
-        btnEmpRequests.setBackground(new Color(33, 47, 61));
-        btnEmpRequests.setForeground(Color.WHITE);
-        btnEmpRequests.setBounds(285, 30, 240, 45);
-        btnEmpRequests.setFocusPainted(false);
-        btnEmpRequests.setBorderPainted(false);
-        btnEmpRequests.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        btnEmpRequests.addActionListener(this);
-
-        mainContent.add(btnEmpRequests);
+      
 
         JLabel lblTitle = new JLabel("Employee Requests");
         lblTitle.setFont(new Font("SansSerif", Font.BOLD, 28));
@@ -227,9 +205,6 @@ public class ManagerFrameRequests extends JFrame implements ActionListener {
             new LoginFrame();
         }
         
-        if(e.getSource()== btnEmpRecords){
-            dispose();
-            new ManagerFrameReview();
-        }
+        
     }
 }
