@@ -1,5 +1,7 @@
 com\mycompany\employeemanagementsystem3\ManagerFrameRequests$1.class
 com\mycompany\employeemanagementsystem3\HRFrame$1.class
+com\mycompany\employeemanagementsystem3\AddEmployeeFrame.class
+com\mycompany\employeemanagementsystem3\HRFrame$2.class
 com\mycompany\employeemanagementsystem3\ManagerFrameReview$4.class
 com\mycompany\employeemanagementsystem3\EmployeeManagementSystem3.class
 com\mycompany\employeemanagementsystem3\HRFrame.class
@@ -11,4 +13,5 @@ com\mycompany\employeemanagementsystem3\ManagerFrameReview$1.class
 com\mycompany\employeemanagementsystem3\EmployeeFrame.class
 com\mycompany\employeemanagementsystem3\ManagerFrameReview.class
 com\mycompany\employeemanagementsystem3\ManagerFrameReviewPerf.class
+com\mycompany\employeemanagementsystem3\HRFrame$3.class
 com\mycompany\employeemanagementsystem3\ManagerFrameReview$3.class
