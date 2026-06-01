@@ -13,6 +13,7 @@ public class HRFrame extends JFrame implements ActionListener {
     private JTable table;
     private JTextField txtSearch;
     private JButton btnAdd, btnEdit, btnDelete, btnSignOut;
+    private JButton btnEmpRecords, btnEmpRequests;
 
     public HRFrame() {
         setTitle("StaffSync - HR Dashboard");
@@ -23,7 +24,7 @@ public class HRFrame extends JFrame implements ActionListener {
         setLayout(null);
         setIconImage(new ImageIcon("src\\main\\java\\images\\StaffSyncLogo16.png").getImage());
 
-        // --- SIDEBAR NAVIGATION (ManagerFrameReview Style) ---
+        // --- SIDEBAR NAVIGATION ---
         sideBar = new JPanel();
         sideBar.setBackground(new Color(33, 47, 61));
         sideBar.setBounds(0, 0, 250, 1000);
@@ -48,7 +49,6 @@ public class HRFrame extends JFrame implements ActionListener {
         lblLogo.setBounds(66, 185, 128, 128); 
         sideBar.add(lblLogo);
 
-        // Functional Round Action Buttons
         btnAdd = createStyledBtn("+ Add Employee", 340, new Color(52, 152, 219));
         btnEdit = createStyledBtn("✎ Edit Employee", 400, new Color(52, 152, 219));
         btnDelete = createStyledBtn("🗑 Delete Record", 460, new Color(231, 76, 60));
@@ -57,7 +57,6 @@ public class HRFrame extends JFrame implements ActionListener {
         sideBar.add(btnEdit);
         sideBar.add(btnDelete);
 
-        // Sign Out Button
         btnSignOut = new JButton("Sign out →");
         btnSignOut.setBounds(35, 890, 180, 50);
         btnSignOut.setBackground(Color.RED);
@@ -69,18 +68,35 @@ public class HRFrame extends JFrame implements ActionListener {
         btnSignOut.addActionListener(this);
         sideBar.add(btnSignOut);
 
-
         // --- MAIN CONTENT AREA ---
         mainContent = new JPanel();
         mainContent.setBackground(new Color(245, 245, 245));
         mainContent.setLayout(null);
         mainContent.setBounds(250, 0, 750, 1000);
 
-        JLabel lblTitle = new JLabel("Employee Records");
-        lblTitle.setFont(new Font("Segoe UI", Font.BOLD, 28));
-        lblTitle.setForeground(new Color(44, 62, 80));
-        lblTitle.setBounds(40, 30, 300, 40);
-        mainContent.add(lblTitle);
+        Color sidebarDarkGray = new Color(33, 47, 61);
+
+        btnEmpRecords = new JButton("Employee Records");
+        btnEmpRecords.setFont(new Font("SansSerif", Font.BOLD, 18));
+        btnEmpRecords.setBackground(sidebarDarkGray);
+        btnEmpRecords.setForeground(Color.WHITE);
+        btnEmpRecords.setBounds(30, 30, 240, 45);
+        btnEmpRecords.setFocusPainted(false);
+        btnEmpRecords.setBorderPainted(false);
+        btnEmpRecords.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        btnEmpRecords.addActionListener(this);
+        mainContent.add(btnEmpRecords);
+
+        btnEmpRequests = new JButton("Employee Review");
+        btnEmpRequests.setFont(new Font("SansSerif", Font.BOLD, 18));
+        btnEmpRequests.setBackground(sidebarDarkGray);
+        btnEmpRequests.setForeground(Color.WHITE);
+        btnEmpRequests.setBounds(285, 30, 240, 45);
+        btnEmpRequests.setFocusPainted(false);
+        btnEmpRequests.setBorderPainted(false);
+        btnEmpRequests.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        btnEmpRequests.addActionListener(this);
+        mainContent.add(btnEmpRequests);
 
         txtSearch = new JTextField(" Search records...");
         txtSearch.setBounds(440, 95, 280, 32);
@@ -105,7 +121,7 @@ public class HRFrame extends JFrame implements ActionListener {
         });
         mainContent.add(txtSearch);
 
-        // --- TABLE SYSTEM CONFIG (11 Specified Fields) ---
+        // --- UNIFIED 11-COLUMN CONFIGURATION ---
         String[] cols = {
             "ID", "Username", "Password", "First Name", "Last Name", 
             "Email", "Phone Number", "Department", "Role", "Employment Status", "Salary"
@@ -126,7 +142,7 @@ public class HRFrame extends JFrame implements ActionListener {
         table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF); 
 
         JTableHeader header = table.getTableHeader();
-        header.setBackground(new Color(33, 47, 61));
+        header.setBackground(sidebarDarkGray);
         header.setForeground(Color.WHITE);
         header.setFont(new Font("SansSerif", Font.BOLD, 13));
 
@@ -136,12 +152,13 @@ public class HRFrame extends JFrame implements ActionListener {
         pane.getViewport().setBackground(new Color(245, 245, 245));
         mainContent.add(pane);
 
-        // Populate Initial Sample Rows
-        model.addRow(new Object[]{"001", "johndoe", "pass123", "John", "Doe", "john@staffsync.com", "09123456789", "Marketing", "Staff", "Regular", "50,000"});
-        model.addRow(new Object[]{"002", "sconnor", "cyberdyne", "Sarah", "Connor", "sarah@staffsync.com", "09234567890", "Technical", "Supervisor", "Regular", "65,000"});
-        model.addRow(new Object[]{"003", "mjordan", "goat23", "Michael", "Jordan", "mike@staffsync.com", "09345678901", "Management", "Manager", "Regular", "120,000"});
+        // Aligned Unified Master Records
+        model.addRow(new Object[]{"001", "jomar_p", "pass1", "Jomar N.", "Pangilinan", "jomar@staffsync.com", "09123456789", "Management", "Manager", "Regular", "50,000"});
+        model.addRow(new Object[]{"002", "karlo_a", "pass2", "Karlo", "Alatiit", "karlo@staffsync.com", "09234567890", "Operations", "Supervisor", "Regular", "40,000"});
+        model.addRow(new Object[]{"003", "rich_j", "pass3", "Rich Jasper", "Federio", "rich@staffsync.com", "09345678901", "Technical", "Staff", "Regular", "30,000"});
+        model.addRow(new Object[]{"004", "alice_g", "pass4", "Alice", "Guo", "alice@staffsync.com", "09456789012", "Finance", "Accountant", "Regular", "35,000"});
+        model.addRow(new Object[]{"005", "bob_m", "pass5", "Bob", "Marley", "bob@staffsync.com", "09567890123", "Logistics", "Driver", "Regular", "25,000"});
 
-        // Adjust column widths appropriately
         for (int i = 0; i < table.getColumnCount(); i++) {
             table.getColumnModel().getColumn(i).setPreferredWidth(110);
         }
@@ -151,7 +168,10 @@ public class HRFrame extends JFrame implements ActionListener {
         setVisible(true);
     }
 
-    // Public receiver method called by AddEmployeeFrame to insert records cleanly
+    public DefaultTableModel getTableModel() {
+        return this.model;
+    }
+
     public void addEmployeeRow(Object[] dataRow) {
         model.addRow(dataRow);
         JOptionPane.showMessageDialog(this, "Employee record added successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
@@ -183,8 +203,10 @@ public class HRFrame extends JFrame implements ActionListener {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        if (e.getSource() == btnAdd) {
-            // Opens the customized frame window and links parent logic directly
+        if (e.getSource() == btnEmpRequests) {
+            dispose();
+            new ManagerFrameReview(this); // Transitions seamlessly passing identical layouts
+        } else if (e.getSource() == btnAdd) {
             new AddEmployeeFrame(this);
         } else if (e.getSource() == btnEdit) {
             int row = table.getSelectedRow();
@@ -202,7 +224,6 @@ public class HRFrame extends JFrame implements ActionListener {
         }
     }
 
-    // Retained for processing inline edits cleanly
     private void handleEditForm(int row) {
         JTextField id = new JTextField(model.getValueAt(row, 0).toString());
         JTextField user = new JTextField(model.getValueAt(row, 1).toString());

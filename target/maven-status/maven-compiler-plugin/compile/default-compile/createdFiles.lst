@@ -9,6 +9,8 @@ com\mycompany\employeemanagementsystem3\ManagerSelectionFrame.class
 com\mycompany\employeemanagementsystem3\LoginFrame.class
 com\mycompany\employeemanagementsystem3\ManagerFrameReview$2.class
 com\mycompany\employeemanagementsystem3\ManagerFrameRequests.class
+com\mycompany\employeemanagementsystem3\ManagerFrameReview$5.class
+com\mycompany\employeemanagementsystem3\ManagerFrameReviewPerf$1.class
 com\mycompany\employeemanagementsystem3\ManagerFrameReview$1.class
 com\mycompany\employeemanagementsystem3\EmployeeFrame.class
 com\mycompany\employeemanagementsystem3\ManagerFrameReview.class

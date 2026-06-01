@@ -5,19 +5,25 @@ import java.awt.event.*;
 import javax.swing.*;
 import javax.swing.border.LineBorder;
 
-public class ManagerFrameReviewPerf extends JFrame {
+public class ManagerFrameReviewPerf extends JFrame implements ActionListener {
 
     private JTextArea txtFeedback;
-    private JButton btnSubmit, btnBack;
+    private JButton btnSubmit, btnBack, btnSignOut;
+    private JButton btnEmpRecords, btnEmpRequests;
     private JPanel sideBar, mainContent, cardPanel;
+    private String employeeName; // Cached for submit actions
 
     public ManagerFrameReviewPerf(String name, String address, String contact, String position) {
-        setTitle("StaffSync - Manager - Employee Review" + name);
+        this.employeeName = name;
+        
+        setTitle("StaffSync - Manager - Employee Review: " + name);
         setSize(1000, 1000);
-        setLayout(null);
-        setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setLocationRelativeTo(null);
+        setResizable(false);
+        setLayout(null);
 
+        // --- SIDEBAR NAVIGATION (Identical Format to ManagerFrameReview) ---
         sideBar = new JPanel();
         sideBar.setBackground(new Color(33, 47, 61));
         sideBar.setBounds(0, 0, 250, 1000);
@@ -39,59 +45,86 @@ public class ManagerFrameReviewPerf extends JFrame {
         sideBar.add(lblUser);
 
         JLabel lblLogo = new JLabel(new ImageIcon("src\\main\\java\\images\\StaffSyncLogo128.png"));
-        lblLogo.setForeground(Color.GRAY);
         lblLogo.setBounds(66, 185, 128, 128);
         lblLogo.setHorizontalAlignment(SwingConstants.CENTER);
         sideBar.add(lblLogo);
 
-        btnSubmit = new JButton("Submit Review");
-        btnSubmit.setBounds(35, 360, 180, 45);
-        styleButton(btnSubmit, new Color(52, 152, 219));
-
-        btnBack = new JButton("Back");
-        btnBack.setBounds(35, 425, 180, 45);
-        btnBack.setBackground(Color.RED);
-        btnBack.setForeground(Color.WHITE);
-        btnBack.setFont(new Font("SansSerif", Font.BOLD, 15));
-        btnBack.setFocusPainted(false);
-        btnBack.setBorderPainted(false);
-        btnBack.setCursor(new Cursor(Cursor.HAND_CURSOR));
-
+        // Styled buttons replacing old standard styles
+        btnSubmit = createStyledBtn("💾 Submit Review", 340, new Color(52, 152, 219));
+        btnBack = createStyledBtn("← Back to List", 400, new Color(127, 140, 141));
         sideBar.add(btnSubmit);
         sideBar.add(btnBack);
 
+        btnSignOut = new JButton("Sign out →");
+        btnSignOut.setBounds(35, 890, 180, 50);
+        btnSignOut.setBackground(Color.RED);
+        btnSignOut.setForeground(Color.WHITE);
+        btnSignOut.setFocusPainted(false);
+        btnSignOut.setBorderPainted(false);
+        btnSignOut.setFont(new Font("SansSerif", Font.BOLD, 13));
+        btnSignOut.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        btnSignOut.addActionListener(this);
+        sideBar.add(btnSignOut);
+
+        // --- MAIN CONTENT AREA (Identical Format to ManagerFrameReview) ---
         mainContent = new JPanel();
         mainContent.setBackground(new Color(245, 245, 245));
-        mainContent.setBounds(250, 0, 750, 1000);
         mainContent.setLayout(null);
+        mainContent.setBounds(250, 0, 750, 1000);
 
+        Color sidebarDarkGray = new Color(33, 47, 61);
+
+        btnEmpRecords = new JButton("Employee Records");
+        btnEmpRecords.setFont(new Font("SansSerif", Font.BOLD, 18));
+        btnEmpRecords.setBackground(sidebarDarkGray);
+        btnEmpRecords.setForeground(Color.WHITE);
+        btnEmpRecords.setBounds(30, 30, 240, 45);
+        btnEmpRecords.setFocusPainted(false);
+        btnEmpRecords.setBorderPainted(false);
+        btnEmpRecords.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        btnEmpRecords.addActionListener(this);
+        mainContent.add(btnEmpRecords);
+
+        btnEmpRequests = new JButton("Employee Review");
+        btnEmpRequests.setFont(new Font("SansSerif", Font.BOLD, 18));
+        btnEmpRequests.setBackground(sidebarDarkGray);
+        btnEmpRequests.setForeground(Color.WHITE);
+        btnEmpRequests.setBounds(285, 30, 240, 45);
+        btnEmpRequests.setFocusPainted(false);
+        btnEmpRequests.setBorderPainted(false);
+        btnEmpRequests.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        btnEmpRequests.addActionListener(this);
+        mainContent.add(btnEmpRequests);
+
+        // --- CARD INTERIOR CONTENT PANEL ---
         cardPanel = new JPanel();
         cardPanel.setLayout(null);
         cardPanel.setBackground(Color.WHITE);
-        cardPanel.setBounds(100, 100, 550, 750);
+        cardPanel.setBounds(100, 120, 550, 730); // Adjusted layout dimensions cleanly
         cardPanel.setBorder(BorderFactory.createLineBorder(new Color(230, 230, 230)));
         mainContent.add(cardPanel);
 
         JLabel title = new JLabel("Performance Evaluation");
-        title.setBounds(50, 40, 450, 40);
-        title.setFont(new Font("SansSerif", Font.BOLD, 28));
+        title.setBounds(50, 35, 450, 40);
+        title.setFont(new Font("SansSerif", Font.BOLD, 26));
         title.setForeground(new Color(33, 47, 61));
         cardPanel.add(title);
 
         JLabel lblName = new JLabel("Employee: " + name);
-        lblName.setBounds(50, 115, 400, 25);
-        lblName.setFont(new Font("SansSerif", Font.PLAIN, 16));
+        lblName.setBounds(50, 95, 400, 25);
+        lblName.setFont(new Font("SansSerif", Font.BOLD, 15));
         cardPanel.add(lblName);
 
         JLabel lblPosition = new JLabel("Position: " + position);
-        lblPosition.setBounds(50, 139, 400, 25);
-        lblPosition.setFont(new Font("SansSerif", Font.ITALIC, 15));
+        lblPosition.setBounds(50, 120, 400, 25);
+        lblPosition.setFont(new Font("SansSerif", Font.ITALIC, 14));
         lblPosition.setForeground(Color.GRAY);
         cardPanel.add(lblPosition);
 
         JLabel lblRatings = new JLabel("Poor (1) Average (2) Good (3) Very Good (4) Excellent (5)");
-        lblRatings.setBounds(50, 160, 400, 25);
+        lblRatings.setBounds(50, 145, 400, 25);
         lblRatings.setFont(new Font("SansSerif", Font.PLAIN, 12));
+        lblRatings.setForeground(Color.DARK_GRAY);
         cardPanel.add(lblRatings);
 
         JPanel tableContainer = new JPanel();
@@ -144,14 +177,14 @@ public class ManagerFrameReviewPerf extends JFrame {
         currentY += 55;
 
         JScrollPane tableScroll = new JScrollPane(tableContainer);
-        tableScroll.setBounds(50, 190, 450, 221);
+        tableScroll.setBounds(50, 180, 450, 230);
         tableScroll.setBorder(BorderFactory.createEmptyBorder());
         tableScroll.getVerticalScrollBar().setUnitIncrement(12);
         cardPanel.add(tableScroll);
 
         JLabel lblFeedback = new JLabel("Manager's Detailed Feedback:");
-        lblFeedback.setBounds(50, 440, 300, 25);
-        lblFeedback.setFont(new Font("SansSerif", Font.BOLD, 16));
+        lblFeedback.setBounds(50, 430, 300, 25);
+        lblFeedback.setFont(new Font("SansSerif", Font.BOLD, 15));
         cardPanel.add(lblFeedback);
 
         txtFeedback = new JTextArea();
@@ -160,29 +193,45 @@ public class ManagerFrameReviewPerf extends JFrame {
         txtFeedback.setFont(new Font("SansSerif", Font.PLAIN, 14));
 
         JScrollPane scroll = new JScrollPane(txtFeedback);
-        scroll.setBounds(50, 478, 450, 150);
+        scroll.setBounds(50, 465, 450, 160);
         scroll.setBorder(BorderFactory.createLineBorder(new Color(220, 220, 220)));
         cardPanel.add(scroll);
 
         add(sideBar);
         add(mainContent);
 
-        btnSubmit.addActionListener(e -> {
-            JOptionPane.showMessageDialog(this, "Review for " + name + " has been successfully submitted.", "Success", JOptionPane.INFORMATION_MESSAGE);
-            new ManagerFrameReview();
-            dispose();
-        });
-
-        btnBack.addActionListener(e -> {
-            new ManagerFrameReview();
-            dispose();
-        });
-
         setVisible(true);
 
         SwingUtilities.invokeLater(() -> {
             tableScroll.getVerticalScrollBar().setValue(0);
         });
+    }
+
+    /**
+     * Renders uniform rounded action buttons matching the layout system
+     */
+    private JButton createStyledBtn(String text, int y, Color color) {
+        JButton b = new JButton(text) {
+            @Override
+            protected void paintComponent(Graphics g) {
+                Graphics2D g2 = (Graphics2D) g.create();
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                g2.setColor(getBackground());
+                g2.fillRoundRect(0, 0, getWidth(), getHeight(), 10, 10);
+                super.paintComponent(g);
+                g2.dispose();
+            }
+        };
+        b.setBounds(25, y, 200, 45); 
+        b.setBackground(color);
+        b.setForeground(Color.WHITE);
+        b.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        b.setFocusPainted(false);
+        b.setBorderPainted(false);
+        b.setContentAreaFilled(false);
+        b.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        b.addActionListener(this);
+        return b;
     }
 
     private int addCategoryHeader(JPanel parent, String title, int y) {
@@ -239,7 +288,6 @@ public class ManagerFrameReviewPerf extends JFrame {
         group.add(rb1); group.add(rb2); group.add(rb3); group.add(rb4); group.add(rb5);
 
         rbPanel.add(rb1); rbPanel.add(rb2); rbPanel.add(rb3); rbPanel.add(rb4); rbPanel.add(rb5);
-        
         parent.add(rbPanel);
 
         JPanel line = new JPanel();
@@ -250,12 +298,20 @@ public class ManagerFrameReviewPerf extends JFrame {
         parent.setPreferredSize(new Dimension(430, y + 55));
     }
 
-    private void styleButton(JButton btn, Color bg) {
-        btn.setBackground(bg);
-        btn.setForeground(Color.WHITE);
-        btn.setFocusPainted(false);
-        btn.setBorderPainted(false);
-        btn.setFont(new Font("SansSerif", Font.BOLD, 15));
-        btn.setCursor(new Cursor(Cursor.HAND_CURSOR));
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        if (e.getSource() == btnSubmit) {
+            JOptionPane.showMessageDialog(this, "Review for " + employeeName + " has been successfully submitted.", "Success", JOptionPane.INFORMATION_MESSAGE);
+            new ManagerFrameReview();
+            dispose();
+        } else if (e.getSource() == btnBack) {
+            new ManagerFrameReview();
+            dispose();
+        } else if (e.getSource() == btnSignOut) {
+            dispose();
+            new LoginFrame();
+        }else if (e.getSource() == btnEmpRecords) {
+            dispose();
+            new HRFrame();
     }
-}
+}}
