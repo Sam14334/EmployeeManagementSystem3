@@ -2,6 +2,7 @@ package com.mycompany.employeemanagementsystem3;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.sql.*;
 import javax.swing.*;
 import javax.swing.border.LineBorder;
 import javax.swing.table.DefaultTableModel;
@@ -12,7 +13,7 @@ public class ManagerFrameReview extends JFrame implements ActionListener {
 
     private JPanel sideBar, mainContent;
     private JTable employeeTable;
-    private JButton btnSignOut, btnReview; // Added btnReview reference
+    private JButton btnSignOut, btnReview; 
     private JButton btnEmpRecords, btnEmpRequests;
     private JTextField txtSearch;
     private TableRowSorter<DefaultTableModel> tableSorter;
@@ -20,20 +21,23 @@ public class ManagerFrameReview extends JFrame implements ActionListener {
 
     public ManagerFrameReview() {
         initializeLayout();
-        loadDefaultMasterRows();
+        loadLiveDatabaseRows(); 
         hideUnnecessaryColumns();
     }
 
-    // Transfers running data arrays natively across frames with matching schemas
     public ManagerFrameReview(HRFrame hrSource) {
         initializeLayout();
-        DefaultTableModel hrModel = hrSource.getTableModel();
-        for (int i = 0; i < hrModel.getRowCount(); i++) {
-            Object[] rowData = new Object[hrModel.getColumnCount()];
-            for (int col = 0; col < hrModel.getColumnCount(); col++) {
-                rowData[col] = hrModel.getValueAt(i, col);
+        if (hrSource != null && hrSource.getTableModel() != null) {
+            DefaultTableModel hrModel = hrSource.getTableModel();
+            for (int i = 0; i < hrModel.getRowCount(); i++) {
+                Object[] rowData = new Object[hrModel.getColumnCount()];
+                for (int col = 0; col < hrModel.getColumnCount(); col++) {
+                    rowData[col] = hrModel.getValueAt(i, col);
+                }
+                model.addRow(rowData);
             }
-            model.addRow(rowData);
+        } else {
+            loadLiveDatabaseRows(); // Fallback to safe DB load if source frame instance is empty
         }
         hideUnnecessaryColumns();
     }
@@ -43,7 +47,15 @@ public class ManagerFrameReview extends JFrame implements ActionListener {
         setSize(1000, 1000);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
+        setResizable(false);
         setLayout(null);
+
+        // Safely set frame micro-icon asset
+        try {
+            setIconImage(new ImageIcon("src\\main\\java\\images\\StaffSyncLogo16.png").getImage());
+        } catch (Exception ex) {
+            System.err.println("Warning: Taskbar mini icon failed to load. " + ex.getMessage());
+        }
 
         // --- SIDEBAR NAVIGATION ---
         sideBar = new JPanel();
@@ -51,14 +63,18 @@ public class ManagerFrameReview extends JFrame implements ActionListener {
         sideBar.setBounds(0, 0, 250, 1000);
         sideBar.setLayout(null);
 
-        ImageIcon rawIcon = new ImageIcon("src\\main\\java\\images\\karlo.png");
-        Image scaledImg = rawIcon.getImage().getScaledInstance(100, 100, Image.SCALE_SMOOTH);
-        ImageIcon finalAvatar = new ImageIcon(scaledImg);
+        try {
+            ImageIcon rawIcon = new ImageIcon("src\\main\\java\\images\\karlo.png");
+            Image scaledImg = rawIcon.getImage().getScaledInstance(100, 100, Image.SCALE_SMOOTH);
+            ImageIcon finalAvatar = new ImageIcon(scaledImg);
 
-        JLabel lblProfilePic = new JLabel(finalAvatar);
-        lblProfilePic.setBounds(80, 30, 100, 100);
-        lblProfilePic.setBorder(new LineBorder(new Color(255, 255, 255, 50), 2));
-        sideBar.add(lblProfilePic);
+            JLabel lblProfilePic = new JLabel(finalAvatar);
+            lblProfilePic.setBounds(80, 30, 100, 100);
+            lblProfilePic.setBorder(new LineBorder(new Color(255, 255, 255, 50), 2));
+            sideBar.add(lblProfilePic);
+        } catch (Exception ex) {
+            System.err.println("Warning: Sidebar avatar image missing. " + ex.getMessage());
+        }
 
         JLabel lblUser = new JLabel("Review Manager | Karlo", SwingConstants.CENTER);
         lblUser.setForeground(Color.LIGHT_GRAY);
@@ -66,12 +82,15 @@ public class ManagerFrameReview extends JFrame implements ActionListener {
         lblUser.setBounds(30, 140, 200, 25);
         sideBar.add(lblUser);
 
-        JLabel lblLogo = new JLabel(new ImageIcon("src\\main\\java\\images\\StaffSyncLogo128.png"));
-        lblLogo.setBounds(66, 185, 128, 128);
-        lblLogo.setHorizontalAlignment(SwingConstants.CENTER);
-        sideBar.add(lblLogo);
+        try {
+            JLabel lblLogo = new JLabel(new ImageIcon("src\\main\\java\\images\\StaffSyncLogo128.png"));
+            lblLogo.setBounds(66, 185, 128, 128);
+            lblLogo.setHorizontalAlignment(SwingConstants.CENTER);
+            sideBar.add(lblLogo);
+        } catch (Exception ex) {
+            System.err.println("Warning: Branding logo failed to initialize. " + ex.getMessage());
+        }
 
-        // --- ADDED SIDEBAR ACTION BUTTON ---
         btnReview = createStyledBtn("🔍 Review Employee", 340, new Color(52, 152, 219));
         sideBar.add(btnReview);
 
@@ -121,6 +140,7 @@ public class ManagerFrameReview extends JFrame implements ActionListener {
         txtSearch.setFont(new Font("SansSerif", Font.PLAIN, 13));
         txtSearch.setForeground(Color.GRAY);
         txtSearch.setBorder(BorderFactory.createLineBorder(new Color(200, 200, 200), 1));
+        
         txtSearch.addFocusListener(new FocusAdapter() {
             @Override
             public void focusGained(FocusEvent e) {
@@ -154,7 +174,6 @@ public class ManagerFrameReview extends JFrame implements ActionListener {
 
         employeeTable = new JTable(model);
         employeeTable.setRowHeight(45);
-        
         employeeTable.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS); 
         
         tableSorter = new TableRowSorter<>(model);
@@ -167,7 +186,8 @@ public class ManagerFrameReview extends JFrame implements ActionListener {
                 if (targetText.equals(" Search records...") || targetText.trim().isEmpty()) {
                     tableSorter.setRowFilter(null);
                 } else {
-                    tableSorter.setRowFilter(RowFilter.regexFilter("(?i)" + targetText.trim()));
+                    // Safe injection regex escape parsing filter execution
+                    tableSorter.setRowFilter(RowFilter.regexFilter("(?i)" + java.util.regex.Pattern.quote(targetText.trim())));
                 }
             }
         });
@@ -176,6 +196,7 @@ public class ManagerFrameReview extends JFrame implements ActionListener {
         employeeTable.getTableHeader().setForeground(Color.WHITE);
         employeeTable.getTableHeader().setFont(new Font("SansSerif", Font.BOLD, 13));
         employeeTable.setSelectionBackground(new Color(52, 152, 219, 40));
+        employeeTable.setSelectionForeground(Color.BLACK);
         employeeTable.setShowVerticalLines(false);
 
         JScrollPane scrollPane = new JScrollPane(employeeTable);
@@ -187,7 +208,7 @@ public class ManagerFrameReview extends JFrame implements ActionListener {
         employeeTable.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                if (e.getClickCount() == 2) { // Optional Double Click support to trigger review
+                if (e.getClickCount() == 2) { 
                     executeReviewAction();
                 }
             }
@@ -198,28 +219,76 @@ public class ManagerFrameReview extends JFrame implements ActionListener {
         setVisible(true);
     }
 
-    /**
-     * Helper to retrieve row selections safely and route to performance evaluations 
-     */
-    private void executeReviewAction() {
-        int viewRow = employeeTable.getSelectedRow();
-        if (viewRow != -1) {
-            int modelRow = employeeTable.convertRowIndexToModel(viewRow);
-            
-            String name = employeeTable.getModel().getValueAt(modelRow, 3).toString() + " " + 
-                          employeeTable.getModel().getValueAt(modelRow, 4).toString();
-            String pos = employeeTable.getModel().getValueAt(modelRow, 8).toString();
-            
-            new ManagerFrameReviewPerf(name, "N/A", "N/A", pos);
-            dispose();
-        } else {
-            JOptionPane.showMessageDialog(this, "Please select an employee from the table list to review.", "No Selection Made", JOptionPane.WARNING_MESSAGE);
+    private void loadLiveDatabaseRows() {
+        model.setRowCount(0); 
+        String query = "SELECT e.employee_id, e.username, e.password, e.first_name, e.last_name, "
+                     + "e.email, e.phone_number, d.dept_name, e.role, s.status_name, e.salary "
+                     + "FROM employees e "
+                     + "LEFT JOIN departments d ON e.dept_id = d.dept_id "
+                     + "LEFT JOIN employment_statuses s ON e.status_id = s.status_id "
+                     + "ORDER BY e.employee_id ASC";
+
+        try (Connection conn = DBConnection.getConnection()) {
+            if (conn == null) {
+                throw new SQLException("Database pipeline reference configuration channel is empty.");
+            }
+            try (Statement stmt = conn.createStatement();
+                 ResultSet rs = stmt.executeQuery(query)) {
+
+                while (rs.next()) {
+                    model.addRow(new Object[]{
+                        rs.getString("employee_id"),
+                        rs.getString("username"),
+                        rs.getString("password"),
+                        rs.getString("first_name"),
+                        rs.getString("last_name"),
+                        rs.getString("email"),
+                        rs.getString("phone_number"),
+                        rs.getString("dept_name") != null ? rs.getString("dept_name") : "[No Dept]",
+                        rs.getString("role"),
+                        rs.getString("status_name") != null ? rs.getString("status_name") : "[No Status]",
+                        String.format("%,.0f", rs.getDouble("salary"))
+                    });
+                }
+            }
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+            JOptionPane.showMessageDialog(this, "Communications failure: Could not sync live tracking list.\nDetails: " + ex.getMessage(), "Database Error", JOptionPane.ERROR_MESSAGE);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            JOptionPane.showMessageDialog(this, "An unexpected data parsing layout crash occurred: " + ex.getMessage(), "System Error", JOptionPane.ERROR_MESSAGE);
         }
     }
 
-    /**
-     * Custom renderer method matching HR UI style conventions for buttons
-     */
+    private void executeReviewAction() {
+        int viewRow = employeeTable.getSelectedRow();
+        if (viewRow != -1) {
+            try {
+                // Secures model conversion to read true identity mappings after filtering searches
+                int modelRow = employeeTable.convertRowIndexToModel(viewRow);
+                
+                Object fnObj = employeeTable.getModel().getValueAt(modelRow, 3);
+                Object lnObj = employeeTable.getModel().getValueAt(modelRow, 4);
+                Object posObj = employeeTable.getModel().getValueAt(modelRow, 8);
+                
+                String firstName = fnObj != null ? fnObj.toString() : "";
+                String lastName = lnObj != null ? lnObj.toString() : "";
+                String name = (firstName + " " + lastName).trim();
+                String pos = posObj != null ? posObj.toString() : "Employee";
+                
+                if (name.isEmpty()) name = "Unknown Employee";
+
+                dispose();
+                new ManagerFrameReviewPerf(name, "N/A", "N/A", pos);
+            } catch (Exception ex) {
+                ex.printStackTrace();
+                JOptionPane.showMessageDialog(this, "Failed to instantiate the tracking target interface screen: " + ex.getMessage(), "Execution Failure", JOptionPane.ERROR_MESSAGE);
+            }
+        } else {
+            JOptionPane.showMessageDialog(this, "Please select an active employee entry from the table workspace list to review.", "Selection Missing", JOptionPane.WARNING_MESSAGE);
+        }
+    }
+
     private JButton createStyledBtn(String text, int y, Color color) {
         JButton b = new JButton(text) {
             @Override
@@ -244,42 +313,36 @@ public class ManagerFrameReview extends JFrame implements ActionListener {
         return b;
     }
 
-    /**
-     * Hides specific columns from the view while leaving them intact in the model.
-     * This keeps the layout perfectly aligned but clean for easy selection.
-     */
     private void hideUnnecessaryColumns() {
         TableColumnModel colModel = employeeTable.getColumnModel();
         String[] columnsToHide = {"Username", "Password", "Email", "Phone Number", "Employment Status"};
         
         for (String targetHeader : columnsToHide) {
             try {
+                // Linear verification tracking to safely isolate indices without layout offset shifts
                 int index = colModel.getColumnIndex(targetHeader);
                 colModel.removeColumn(colModel.getColumn(index));
             } catch (IllegalArgumentException ex) {
-                // Column already hidden or not found
+                // Handled gracefully: Column was already stripped or does not exist
             }
         }
     }
 
-    private void loadDefaultMasterRows() {
-        model.addRow(new Object[]{"001", "jomar_p", "pass1", "Jomar N.", "Pangilinan", "jomar@staffsync.com", "09123456789", "Management", "Manager", "Regular", "50,000"});
-        model.addRow(new Object[]{"002", "karlo_a", "pass2", "Karlo", "Alatiit", "karlo@staffsync.com", "09234567890", "Operations", "Supervisor", "Regular", "40,000"});
-        model.addRow(new Object[]{"003", "rich_j", "pass3", "Rich Jasper", "Federio", "rich@staffsync.com", "09345678901", "Technical", "Staff", "Regular", "30,000"});
-        model.addRow(new Object[]{"004", "alice_g", "pass4", "Alice", "Guo", "alice@staffsync.com", "09456789012", "Finance", "Accountant", "Regular", "35,000"});
-        model.addRow(new Object[]{"005", "bob_m", "pass5", "Bob", "Marley", "bob@staffsync.com", "09567890123", "Logistics", "Driver", "Regular", "25,000"});
-    }
-
     @Override
     public void actionPerformed(ActionEvent e) {
-        if (e.getSource() == btnSignOut) {
-            dispose();
-            new LoginFrame();
-        } else if (e.getSource() == btnEmpRecords) {
-            dispose();
-            new HRFrame(); 
-        } else if (e.getSource() == btnReview) {
-            executeReviewAction();
+        try {
+            if (e.getSource() == btnSignOut) {
+                dispose();
+                new LoginFrame();
+            } else if (e.getSource() == btnEmpRecords) {
+                dispose();
+                new HRFrame(); 
+            } else if (e.getSource() == btnReview) {
+                executeReviewAction();
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            JOptionPane.showMessageDialog(this, "Navigation processing route error: " + ex.getMessage(), "System Interface Crash", JOptionPane.ERROR_MESSAGE);
         }
     }
 }

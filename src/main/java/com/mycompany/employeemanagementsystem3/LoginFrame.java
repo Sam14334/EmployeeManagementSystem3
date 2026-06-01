@@ -5,7 +5,6 @@ import java.awt.event.*;
 import javax.swing.border.MatteBorder;
 import java.awt.*;
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -15,29 +14,43 @@ public class LoginFrame extends JFrame implements ActionListener {
     private JTextField txtUsername;
     private JPasswordField txtPassword;
     private JComboBox<String> cbRole;
-
-    JButton btnSubmit, btnClear;
+    private JButton btnSubmit, btnClear;
 
     public LoginFrame() {
-
         setTitle("StaffSync - Login");
         setSize(800, 430);
         setLayout(null);
         setLocationRelativeTo(null);
         setResizable(false);
         getContentPane().setBackground(new Color(30, 30, 30));
-        setIconImage(new ImageIcon("src\\main\\java\\images\\StaffSyncLogo16.png").getImage());
 
-        JLabel leftPanel = new JLabel(new ImageIcon("src\\main\\java\\images\\bgimage2blur.png"));
+        // Safely load window frame micro-icon asset
+        try {
+            setIconImage(new ImageIcon("src\\main\\java\\images\\StaffSyncLogo16.png").getImage());
+        } catch (Exception ex) {
+            System.err.println("Warning: Login window taskbar icon failed to load. " + ex.getMessage());
+        }
+
+        // --- LEFT VISUAL BRAND PANEL ---
+        JLabel leftPanel = new JLabel();
+        try {
+            leftPanel.setIcon(new ImageIcon("src\\main\\java\\images\\bgimage2blur.png"));
+        } catch (Exception ex) {
+            System.err.println("Warning: Background blur asset missing. Falling back to plain color.");
+        }
         leftPanel.setBounds(0, 0, 400, 400);
-        leftPanel.setBackground(new Color(230, 230, 230));
+        leftPanel.setBackground(new Color(44, 62, 80));
+        leftPanel.setOpaque(true);
         leftPanel.setLayout(null);
         add(leftPanel);
 
-        JLabel lblLogo = new JLabel(new ImageIcon("src\\main\\java\\images\\StaffSyncLogo128.png"));
-        lblLogo.setBounds(136, 70, 128, 128);
-//        lblLogo.setBorder(new MatteBorder(1, 1, 1, 1, Color.GRAY));
-        leftPanel.add(lblLogo);
+        try {
+            JLabel lblLogo = new JLabel(new ImageIcon("src\\main\\java\\images\\StaffSyncLogo128.png"));
+            lblLogo.setBounds(136, 70, 128, 128);
+            leftPanel.add(lblLogo);
+        } catch (Exception ex) {
+            System.err.println("Warning: Main logo asset missing inside visual brand container.");
+        }
 
         JLabel lblBrand = new JLabel("StaffSync", SwingConstants.CENTER);
         lblBrand.setBounds(120, 200, 170, 40);
@@ -51,6 +64,7 @@ public class LoginFrame extends JFrame implements ActionListener {
         lblSubtitle.setFont(new Font("Segoe UI", Font.PLAIN, 14));
         leftPanel.add(lblSubtitle);
 
+        // --- RIGHT CONTROLS PANEL ---
         JLabel lblTitle = new JLabel("Log in");
         lblTitle.setBounds(475, 30, 200, 30);
         lblTitle.setForeground(Color.WHITE);
@@ -66,6 +80,7 @@ public class LoginFrame extends JFrame implements ActionListener {
         txtUsername.setBounds(475, 110, 250, 30);
         txtUsername.setBackground(new Color(30, 30, 30));
         txtUsername.setForeground(Color.WHITE);
+        txtUsername.setCaretColor(Color.WHITE);
         txtUsername.setBorder(new MatteBorder(0, 0, 1, 0, Color.GRAY));
         add(txtUsername);
 
@@ -78,6 +93,7 @@ public class LoginFrame extends JFrame implements ActionListener {
         txtPassword.setBounds(475, 170, 250, 30);
         txtPassword.setBackground(new Color(30, 30, 30));
         txtPassword.setForeground(Color.WHITE);
+        txtPassword.setCaretColor(Color.WHITE);
         txtPassword.setBorder(new MatteBorder(0, 0, 1, 0, Color.GRAY));
         add(txtPassword);
 
@@ -100,15 +116,19 @@ public class LoginFrame extends JFrame implements ActionListener {
         btnSubmit.setBounds(475, 285, 250, 30);
         btnSubmit.setBackground(new Color(100, 149, 237));
         btnSubmit.setForeground(Color.WHITE);
+        btnSubmit.setFont(new Font("Segoe UI", Font.BOLD, 13));
         btnSubmit.setFocusPainted(false);
         btnSubmit.setBorder(BorderFactory.createEmptyBorder());
+        btnSubmit.setCursor(new Cursor(Cursor.HAND_CURSOR));
         btnSubmit.addActionListener(this);
         add(btnSubmit);
 
         btnClear = new JButton("Clear");
         btnClear.setBounds(475, 330, 250, 30);
         btnClear.setBackground(Color.LIGHT_GRAY);
+        btnClear.setFont(new Font("Segoe UI", Font.BOLD, 13));
         btnClear.setFocusPainted(false);
+        btnClear.setCursor(new Cursor(Cursor.HAND_CURSOR));
         btnClear.addActionListener(this);
         add(btnClear);
 
@@ -117,76 +137,90 @@ public class LoginFrame extends JFrame implements ActionListener {
     }
 
     public void actionPerformed(ActionEvent e) {
-        if (e.getSource() == btnSubmit) {
-            handleLogin();
-        } else if (e.getSource() == btnClear) {
-            txtUsername.setText("");
-            txtPassword.setText("");
-            cbRole.setSelectedIndex(0);
+        try {
+            if (e.getSource() == btnSubmit) {
+                handleLogin();
+            } else if (e.getSource() == btnClear) {
+                txtUsername.setText("");
+                txtPassword.setText("");
+                cbRole.setSelectedIndex(0);
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            JOptionPane.showMessageDialog(this, "An unexpected interactive runtime error occurred: " + ex.getMessage(), "System Error", JOptionPane.ERROR_MESSAGE);
         }
     }
 
     private void handleLogin() {
-        String username = txtUsername.getText();
-        String password = new String(txtPassword.getPassword());
+        String username = txtUsername.getText().trim();
+        String password = new String(txtPassword.getPassword()).trim();
         String selectedRole = (String) cbRole.getSelectedItem();
 
-        if (selectedRole.equals("Select Position") || username.isBlank() || password.isBlank()) {
-            JOptionPane.showMessageDialog(this, "Please fill in all the fields.");
+        // 1. Text Field Presence Integrity Guard
+        if (selectedRole == null || selectedRole.equals("Select Position") || username.isEmpty() || password.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Please fulfill all required username, password, and position mapping arguments.", "Validation Error", JOptionPane.WARNING_MESSAGE);
             return;
         }
 
-        try {
-            Connection connection = (Connection) DriverManager.getConnection("jdbc:mysql://localhost:3306/db_employee_management","root", "");
+        String query = "SELECT username, password, role FROM employees WHERE username = ? AND password = ? AND role = ?";
 
-            PreparedStatement statement = (PreparedStatement) connection
-                    .prepareStatement("Select acc_username, acc_password from accounts where acc_username=? and acc_password=? and acc_role=?");
-
-            statement.setString(1, username);
-            statement.setString(2, password);
-            statement.setString(3, selectedRole);
-
-            ResultSet rs = statement.executeQuery();
-
-            if (rs.next()) {
-                dispose();
-                switch (selectedRole) {
-                    case "HR Staff":
-                        new HRFrame();
-                        break;
-                    case "Manager":
-                        new ManagerFrameRequests();
-                        break;
-                    case "Employee":
-                        new EmployeeFrame();
-                        break;
-                }
-            } else {
-                JOptionPane.showMessageDialog(this, "Wrong Credentials.");
+        // 2. Try-With-Resources Transaction Handler
+        try (Connection connection = DBConnection.getConnection()) {
+            if (connection == null) {
+                throw new SQLException("Database connection endpoint returned a null handler sequence.");
             }
 
+            try (PreparedStatement statement = connection.prepareStatement(query)) {
+                statement.setString(1, username);
+                statement.setString(2, password);
+                statement.setString(3, selectedRole);
+
+                try (ResultSet rs = statement.executeQuery()) {
+                    if (rs.next()) {
+                        // 3. Nested Target-Frame Security Wrapper
+                        try {
+                            dispose(); // Safeguard: close the authentication prompt block prior to instantiating target workspaces
+                            
+                            switch (selectedRole) {
+                                case "HR Staff":
+                                    new HRFrame();
+                                    break;
+                                case "Manager":
+                                    new ManagerFrameRequests(); 
+                                    break;
+                                case "Employee":
+                                    new EmployeeFrame();
+                                    break;
+                                default:
+                                    JOptionPane.showMessageDialog(this, "The specified identity routing configuration rules are invalid.", "Routing Error", JOptionPane.ERROR_MESSAGE);
+                                    setVisible(true); // Restore visibility if caught by default branch conditions
+                                    break;
+                            }
+                        } catch (Exception targetEx) {
+                            targetEx.printStackTrace();
+                            JOptionPane.showMessageDialog(null, 
+                                "Target Interface Failure: Could not load the workspace window.\n" +
+                                "Verify that your implementation class exists and is error-free.\n\nDetails: " + targetEx.getMessage(), 
+                                "Workspace Frame Crash", 
+                                JOptionPane.ERROR_MESSAGE);
+                            // Bring back login screen so application does not end up hung silently in system background logs
+                            setVisible(true);
+                        }
+                    } else {
+                        JOptionPane.showMessageDialog(this, "Invalid credentials or unauthorized system authority mapping requested.", "Login Denied", JOptionPane.ERROR_MESSAGE);
+                    }
+                }
+            }
         } catch (SQLException sqlException) {
             sqlException.printStackTrace();
+            JOptionPane.showMessageDialog(this, 
+                "Communications link failure: Could not verify authorization profile.\n" +
+                "Please verify that XAMPP / MySQL services are fully active.\n\nDetails: " + sqlException.getMessage(), 
+                "Database Link Error", 
+                JOptionPane.ERROR_MESSAGE);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            JOptionPane.showMessageDialog(this, "An unhandled background transaction variance has occurred: " + ex.getMessage(), "System Error", JOptionPane.ERROR_MESSAGE);
         }
-
-//        if (username.equals("admin") && password.equals("123")) {
-//
-//            switch (selectedRole) {
-//                case "HR Staff":
-//                    new HRFrame();
-//                    break;
-//                case "Manager":
-//                    new ManagerSelectionFrame();
-//                    break;
-//                case "Employee":
-//                    new EmployeeFrame();
-//                    break;
-//            }
-//
-//            dispose();
-//
-//        } else {
-//            JOptionPane.showMessageDialog(this, "Invalid username or password.");
-//        }
     }
 }
