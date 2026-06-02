@@ -1,7 +1,11 @@
+
 package com.mycompany.employeemanagementsystem3;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.sql.*; // NEW: For database connection
+import java.util.ArrayList; // NEW: To store radio button groups
+import java.util.List;
 import javax.swing.*;
 import javax.swing.border.LineBorder;
 
@@ -11,9 +15,19 @@ public class ManagerFrameReviewPerf extends JFrame implements ActionListener {
     private JButton btnSubmit, btnBack, btnSignOut;
     private JButton btnEmpRecords, btnEmpRequests;
     private JPanel sideBar, mainContent, cardPanel;
-    private String employeeName; // Cached for submit actions
+    
+    private String employeeName; 
+    private String employeeId; // NEW: We need this for the database Foreign Key
 
-    public ManagerFrameReviewPerf(String name, String address, String contact, String position) {
+    // NEW: Lists to keep track of the radio button groups for each category so we can average them later
+    private List<ButtonGroup> behaviorGroups = new ArrayList<>();
+    private List<ButtonGroup> commsGroups = new ArrayList<>();
+    private List<ButtonGroup> mgmtGroups = new ArrayList<>();
+    private List<ButtonGroup> devGroups = new ArrayList<>();
+
+    // NEW: Updated constructor to accept employeeId
+    public ManagerFrameReviewPerf(String employeeId, String name, String position) {
+        this.employeeId = employeeId;
         this.employeeName = name;
         
         setTitle("StaffSync - Manager - Employee Review: " + name);
@@ -23,7 +37,7 @@ public class ManagerFrameReviewPerf extends JFrame implements ActionListener {
         setResizable(false);
         setLayout(null);
 
-        // --- SIDEBAR NAVIGATION (Identical Format to ManagerFrameReview) ---
+        // --- SIDEBAR NAVIGATION ---
         sideBar = new JPanel();
         sideBar.setBackground(new Color(33, 47, 61));
         sideBar.setBounds(0, 0, 250, 1000);
@@ -49,7 +63,6 @@ public class ManagerFrameReviewPerf extends JFrame implements ActionListener {
         lblLogo.setHorizontalAlignment(SwingConstants.CENTER);
         sideBar.add(lblLogo);
 
-        // Styled buttons replacing old standard styles
         btnSubmit = createStyledBtn("💾 Submit Review", 340, new Color(52, 152, 219));
         btnBack = createStyledBtn("← Back to List", 400, new Color(127, 140, 141));
         sideBar.add(btnSubmit);
@@ -66,7 +79,7 @@ public class ManagerFrameReviewPerf extends JFrame implements ActionListener {
         btnSignOut.addActionListener(this);
         sideBar.add(btnSignOut);
 
-        // --- MAIN CONTENT AREA (Identical Format to ManagerFrameReview) ---
+        // --- MAIN CONTENT AREA ---
         mainContent = new JPanel();
         mainContent.setBackground(new Color(245, 245, 245));
         mainContent.setLayout(null);
@@ -100,7 +113,7 @@ public class ManagerFrameReviewPerf extends JFrame implements ActionListener {
         cardPanel = new JPanel();
         cardPanel.setLayout(null);
         cardPanel.setBackground(Color.WHITE);
-        cardPanel.setBounds(100, 120, 550, 730); // Adjusted layout dimensions cleanly
+        cardPanel.setBounds(100, 120, 550, 730);
         cardPanel.setBorder(BorderFactory.createLineBorder(new Color(230, 230, 230)));
         mainContent.add(cardPanel);
 
@@ -152,28 +165,29 @@ public class ManagerFrameReviewPerf extends JFrame implements ActionListener {
 
         int currentY = 30;
 
+        // NEW: Passed the specific category lists to the addRatingRow method
         currentY = addCategoryHeader(tableContainer, "A. Professional Behavior", currentY);
-        addRatingRow(tableContainer, "1. Maintains punctual attendance and adheres to company work-hour policies.", currentY);
+        addRatingRow(tableContainer, "1. Maintains punctual attendance and adheres to company work-hour policies.", currentY, behaviorGroups);
         currentY += 55;
-        addRatingRow(tableContainer, "2. Consistently treats colleagues, clients, and partners with courtesy and professionalism.", currentY);
+        addRatingRow(tableContainer, "2. Consistently treats colleagues, clients, and partners with courtesy and professionalism.", currentY, behaviorGroups);
         currentY += 55;
-        addRatingRow(tableContainer, "3. Takes responsibility for actions, decisions, and deadlines.", currentY);
+        addRatingRow(tableContainer, "3. Takes responsibility for actions, decisions, and deadlines.", currentY, behaviorGroups);
         currentY += 55;
 
         currentY = addCategoryHeader(tableContainer, "B. Communication Skills", currentY);
-        addRatingRow(tableContainer, "1. Communicates ideas, information, and updates clearly and concisely.", currentY);
+        addRatingRow(tableContainer, "1. Communicates ideas, information, and updates clearly and concisely.", currentY, commsGroups);
         currentY += 55;
-        addRatingRow(tableContainer, "2. Effectively listens to others, provides constructive and specific feedback.", currentY);
+        addRatingRow(tableContainer, "2. Effectively listens to others, provides constructive and specific feedback.", currentY, commsGroups);
         currentY += 55;
 
         currentY = addCategoryHeader(tableContainer, "C. Task and Project Management", currentY);
-        addRatingRow(tableContainer, "1. Manages workload efficiently and completes assigned tasks within timelines.", currentY);
+        addRatingRow(tableContainer, "1. Manages workload efficiently and completes assigned tasks within timelines.", currentY, mgmtGroups);
         currentY += 55;
-        addRatingRow(tableContainer, "2. Proactively identifies and implements process improvements.", currentY);
+        addRatingRow(tableContainer, "2. Proactively identifies and implements process improvements.", currentY, mgmtGroups);
         currentY += 55;
 
         currentY = addCategoryHeader(tableContainer, "D. Continuous Development", currentY);
-        addRatingRow(tableContainer, "1. Demonstrates initiative and takes positive steps for development and growth.", currentY);
+        addRatingRow(tableContainer, "1. Demonstrates initiative and takes positive steps for development and growth.", currentY, devGroups);
         currentY += 55;
 
         JScrollPane tableScroll = new JScrollPane(tableContainer);
@@ -207,9 +221,6 @@ public class ManagerFrameReviewPerf extends JFrame implements ActionListener {
         });
     }
 
-    /**
-     * Renders uniform rounded action buttons matching the layout system
-     */
     private JButton createStyledBtn(String text, int y, Color color) {
         JButton b = new JButton(text) {
             @Override
@@ -250,7 +261,8 @@ public class ManagerFrameReviewPerf extends JFrame implements ActionListener {
         return y + 25;
     }
 
-    private void addRatingRow(JPanel parent, String criteriaText, int y) {
+    // NEW: Added the list parameter so the group gets saved
+    private void addRatingRow(JPanel parent, String criteriaText, int y, List<ButtonGroup> categoryList) {
         JTextArea lblCriteria = new JTextArea(criteriaText);
         lblCriteria.setFont(new Font("SansSerif", Font.PLAIN, 11));
         lblCriteria.setLineWrap(true);
@@ -273,6 +285,13 @@ public class ManagerFrameReviewPerf extends JFrame implements ActionListener {
         JRadioButton rb4 = new JRadioButton("4");
         JRadioButton rb5 = new JRadioButton("5");
 
+        // NEW: Set Action Commands so we can easily retrieve the number value later
+        rb1.setActionCommand("1");
+        rb2.setActionCommand("2");
+        rb3.setActionCommand("3");
+        rb4.setActionCommand("4");
+        rb5.setActionCommand("5");
+
         rb1.setFont(new Font("SansSerif", Font.PLAIN, 10)); rb1.setBackground(Color.WHITE); rb1.setFocusPainted(false);
         rb2.setFont(new Font("SansSerif", Font.PLAIN, 10)); rb2.setBackground(Color.WHITE); rb2.setFocusPainted(false);
         rb3.setFont(new Font("SansSerif", Font.PLAIN, 10)); rb3.setBackground(Color.WHITE); rb3.setFocusPainted(false);
@@ -290,6 +309,9 @@ public class ManagerFrameReviewPerf extends JFrame implements ActionListener {
         rbPanel.add(rb1); rbPanel.add(rb2); rbPanel.add(rb3); rbPanel.add(rb4); rbPanel.add(rb5);
         parent.add(rbPanel);
 
+        // NEW: Save the ButtonGroup into our tracking list
+        categoryList.add(group);
+
         JPanel line = new JPanel();
         line.setBackground(new Color(220, 220, 220));
         line.setBounds(0, y + 54, 450, 1);
@@ -298,20 +320,76 @@ public class ManagerFrameReviewPerf extends JFrame implements ActionListener {
         parent.setPreferredSize(new Dimension(430, y + 55));
     }
 
+    // NEW: Helper method to calculate the average of a specific category
+    private double calculateAverage(List<ButtonGroup> groups) throws Exception {
+        double sum = 0;
+        for (ButtonGroup group : groups) {
+            if (group.getSelection() == null) {
+                // If a row doesn't have a selection, throw an error to prevent DB submission
+                throw new Exception("Incomplete"); 
+            }
+            sum += Integer.parseInt(group.getSelection().getActionCommand());
+        }
+        return sum / groups.size();
+    }
+
     @Override
     public void actionPerformed(ActionEvent e) {
         if (e.getSource() == btnSubmit) {
-            JOptionPane.showMessageDialog(this, "Review for " + employeeName + " has been successfully submitted.", "Success", JOptionPane.INFORMATION_MESSAGE);
-            new ManagerFrameReview();
-            dispose();
+            
+            // NEW: Database Insertion Logic
+            try {
+                // 1. Calculate Averages
+                double avgBehavior = calculateAverage(behaviorGroups);
+                double avgComms = calculateAverage(commsGroups);
+                double avgMgmt = calculateAverage(mgmtGroups);
+                double avgDev = calculateAverage(devGroups);
+                String feedback = txtFeedback.getText();
+
+                // 2. Connect to XAMPP MySQL Database
+                String url = "jdbc:mysql://localhost:3306/db_employee_management";
+                String user = "root";
+                String password = ""; 
+
+                try (Connection conn = DriverManager.getConnection(url, user, password)) {
+                    // 3. Prepare the SQL Statement
+                    String sql = "INSERT INTO employee_reviews (employee_id, behavior, communication, management, development, details) VALUES (?, ?, ?, ?, ?, ?)";
+                    PreparedStatement pstmt = conn.prepareStatement(sql);
+                    
+                    pstmt.setString(1, this.employeeId);
+                    pstmt.setDouble(2, avgBehavior);
+                    pstmt.setDouble(3, avgComms);
+                    pstmt.setDouble(4, avgMgmt);
+                    pstmt.setDouble(5, avgDev);
+                    pstmt.setString(6, feedback);
+
+                    // 4. Execute and show success
+                    pstmt.executeUpdate();
+                    JOptionPane.showMessageDialog(this, "Review for " + employeeName + " has been successfully submitted and saved to the database.", "Success", JOptionPane.INFORMATION_MESSAGE);
+                    
+                    // Return to previous frame
+                    new ManagerFrameReview(); // Assuming you will pass necessary args here if needed
+                    dispose();
+                }
+
+            } catch (Exception ex) {
+                if (ex.getMessage().equals("Incomplete")) {
+                    JOptionPane.showMessageDialog(this, "Please select a rating for all criteria before submitting.", "Incomplete Review", JOptionPane.WARNING_MESSAGE);
+                } else {
+                    ex.printStackTrace();
+                    JOptionPane.showMessageDialog(this, "Database Error: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+                }
+            }
+
         } else if (e.getSource() == btnBack) {
             new ManagerFrameReview();
             dispose();
         } else if (e.getSource() == btnSignOut) {
             dispose();
             new LoginFrame();
-        }else if (e.getSource() == btnEmpRecords) {
+        } else if (e.getSource() == btnEmpRecords) {
             dispose();
             new HRFrame();
+        }
     }
-}}
+}

@@ -13,7 +13,7 @@ public class ManagerFrameReview extends JFrame implements ActionListener {
 
     private JPanel sideBar, mainContent;
     private JTable employeeTable;
-    private JButton btnSignOut, btnReview; 
+    private JButton btnSignOut, btnReview, btnViewReviews; // Added btnViewReviews
     private JButton btnEmpRecords, btnEmpRequests;
     private JTextField txtSearch;
     private TableRowSorter<DefaultTableModel> tableSorter;
@@ -21,7 +21,7 @@ public class ManagerFrameReview extends JFrame implements ActionListener {
 
     public ManagerFrameReview() {
         initializeLayout();
-        loadLiveDatabaseRows(); 
+        loadLiveDatabaseRows(""); 
         hideUnnecessaryColumns();
     }
 
@@ -37,7 +37,7 @@ public class ManagerFrameReview extends JFrame implements ActionListener {
                 model.addRow(rowData);
             }
         } else {
-            loadLiveDatabaseRows(); // Fallback to safe DB load if source frame instance is empty
+            loadLiveDatabaseRows(""); // Fallback to safe DB load
         }
         hideUnnecessaryColumns();
     }
@@ -50,7 +50,6 @@ public class ManagerFrameReview extends JFrame implements ActionListener {
         setResizable(false);
         setLayout(null);
 
-        // Safely set frame micro-icon asset
         try {
             setIconImage(new ImageIcon("src\\main\\java\\images\\StaffSyncLogo16.png").getImage());
         } catch (Exception ex) {
@@ -93,6 +92,10 @@ public class ManagerFrameReview extends JFrame implements ActionListener {
 
         btnReview = createStyledBtn("🔍 Review Employee", 340, new Color(52, 152, 219));
         sideBar.add(btnReview);
+
+        // NEW: View Reviews button added right under the Review Employee button
+        btnViewReviews = createStyledBtn("📋 View Reviews", 400, new Color(52, 152, 219));
+        sideBar.add(btnViewReviews);
 
         btnSignOut = new JButton("Sign out →");
         btnSignOut.setBounds(35, 890, 180, 50);
@@ -186,7 +189,6 @@ public class ManagerFrameReview extends JFrame implements ActionListener {
                 if (targetText.equals(" Search records...") || targetText.trim().isEmpty()) {
                     tableSorter.setRowFilter(null);
                 } else {
-                    // Safe injection regex escape parsing filter execution
                     tableSorter.setRowFilter(RowFilter.regexFilter("(?i)" + java.util.regex.Pattern.quote(targetText.trim())));
                 }
             }
@@ -219,7 +221,7 @@ public class ManagerFrameReview extends JFrame implements ActionListener {
         setVisible(true);
     }
 
-    private void loadLiveDatabaseRows() {
+    private void loadLiveDatabaseRows(String keyword) {
         model.setRowCount(0); 
         String query = "SELECT e.employee_id, e.username, e.password, e.first_name, e.last_name, "
                      + "e.email, e.phone_number, d.dept_name, e.role, s.status_name, e.salary "
@@ -264,13 +266,14 @@ public class ManagerFrameReview extends JFrame implements ActionListener {
         int viewRow = employeeTable.getSelectedRow();
         if (viewRow != -1) {
             try {
-                // Secures model conversion to read true identity mappings after filtering searches
                 int modelRow = employeeTable.convertRowIndexToModel(viewRow);
                 
+                Object idObj = employeeTable.getModel().getValueAt(modelRow, 0);
                 Object fnObj = employeeTable.getModel().getValueAt(modelRow, 3);
                 Object lnObj = employeeTable.getModel().getValueAt(modelRow, 4);
                 Object posObj = employeeTable.getModel().getValueAt(modelRow, 8);
                 
+                String employeeId = idObj != null ? idObj.toString() : "";
                 String firstName = fnObj != null ? fnObj.toString() : "";
                 String lastName = lnObj != null ? lnObj.toString() : "";
                 String name = (firstName + " " + lastName).trim();
@@ -279,13 +282,45 @@ public class ManagerFrameReview extends JFrame implements ActionListener {
                 if (name.isEmpty()) name = "Unknown Employee";
 
                 dispose();
-                new ManagerFrameReviewPerf(name, "N/A", "N/A", pos);
+                new ManagerFrameReviewPerf(employeeId, name, pos);
             } catch (Exception ex) {
                 ex.printStackTrace();
                 JOptionPane.showMessageDialog(this, "Failed to instantiate the tracking target interface screen: " + ex.getMessage(), "Execution Failure", JOptionPane.ERROR_MESSAGE);
             }
         } else {
             JOptionPane.showMessageDialog(this, "Please select an active employee entry from the table workspace list to review.", "Selection Missing", JOptionPane.WARNING_MESSAGE);
+        }
+    }
+
+    // NEW: Feature action method to process shifting to the performance reviews display frame
+    private void executeViewReviewsAction() {
+        int viewRow = employeeTable.getSelectedRow();
+        if (viewRow != -1) {
+            try {
+                int modelRow = employeeTable.convertRowIndexToModel(viewRow);
+                
+                Object idObj = employeeTable.getModel().getValueAt(modelRow, 0);
+                Object fnObj = employeeTable.getModel().getValueAt(modelRow, 3);
+                Object lnObj = employeeTable.getModel().getValueAt(modelRow, 4);
+                Object posObj = employeeTable.getModel().getValueAt(modelRow, 8);
+                
+                String employeeId = idObj != null ? idObj.toString() : "";
+                String firstName = fnObj != null ? fnObj.toString() : "";
+                String lastName = lnObj != null ? lnObj.toString() : "";
+                String name = (firstName + " " + lastName).trim();
+                String pos = posObj != null ? posObj.toString() : "Employee";
+                
+                if (name.isEmpty()) name = "Unknown Employee";
+
+                dispose();
+                // Assumed targeting frame class processing layout properties
+                new ManagerFrameReviewView(employeeId, name, pos);
+            } catch (Exception ex) {
+                ex.printStackTrace();
+                JOptionPane.showMessageDialog(this, "Failed to instantiate the review history screen: " + ex.getMessage(), "Execution Failure", JOptionPane.ERROR_MESSAGE);
+            }
+        } else {
+            JOptionPane.showMessageDialog(this, "Please select an active employee entry from the table workspace list to view reviews.", "Selection Missing", JOptionPane.WARNING_MESSAGE);
         }
     }
 
@@ -339,6 +374,8 @@ public class ManagerFrameReview extends JFrame implements ActionListener {
                 new HRFrame(); 
             } else if (e.getSource() == btnReview) {
                 executeReviewAction();
+            } else if (e.getSource() == btnViewReviews) { // NEW: Intercept view reviews click events
+                executeViewReviewsAction();
             }
         } catch (Exception ex) {
             ex.printStackTrace();
