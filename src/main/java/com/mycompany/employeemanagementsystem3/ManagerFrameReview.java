@@ -13,19 +13,31 @@ public class ManagerFrameReview extends JFrame implements ActionListener {
 
     private JPanel sideBar, mainContent;
     private JTable employeeTable;
-    private JButton btnSignOut, btnReview, btnViewReviews; // Added btnViewReviews
+    private JButton btnSignOut, btnReview, btnViewReviews; 
     private JButton btnEmpRecords, btnEmpRequests;
     private JTextField txtSearch;
     private TableRowSorter<DefaultTableModel> tableSorter;
     private DefaultTableModel model;
+    
+    // NEW: Session variables to hold the current user's information
+    private String currentUserId;
+    private String currentUserName;
 
-    public ManagerFrameReview() {
+    // MODIFIED: Constructor now requires the user's ID and Name
+    public ManagerFrameReview(String loggedInUserId, String loggedInUserName) {
+        this.currentUserId = loggedInUserId;
+        this.currentUserName = loggedInUserName;
+        
         initializeLayout();
         loadLiveDatabaseRows(""); 
         hideUnnecessaryColumns();
     }
 
-    public ManagerFrameReview(HRFrame hrSource) {
+    // MODIFIED: Overloaded constructor also requires user's ID and Name
+    public ManagerFrameReview(HRFrame hrSource, String loggedInUserId, String loggedInUserName) {
+        this.currentUserId = loggedInUserId;
+        this.currentUserName = loggedInUserName;
+        
         initializeLayout();
         if (hrSource != null && hrSource.getTableModel() != null) {
             DefaultTableModel hrModel = hrSource.getTableModel();
@@ -75,7 +87,8 @@ public class ManagerFrameReview extends JFrame implements ActionListener {
             System.err.println("Warning: Sidebar avatar image missing. " + ex.getMessage());
         }
 
-        JLabel lblUser = new JLabel("Review Manager | Karlo", SwingConstants.CENTER);
+        // MODIFIED: Now uses the dynamic user name instead of hardcoded "Karlo"
+        JLabel lblUser = new JLabel("Review Manager | " + currentUserName, SwingConstants.CENTER);
         lblUser.setForeground(Color.LIGHT_GRAY);
         lblUser.setFont(new Font("Segoe UI", Font.BOLD, 14));
         lblUser.setBounds(30, 140, 200, 25);
@@ -93,7 +106,6 @@ public class ManagerFrameReview extends JFrame implements ActionListener {
         btnReview = createStyledBtn("🔍 Review Employee", 340, new Color(52, 152, 219));
         sideBar.add(btnReview);
 
-        // NEW: View Reviews button added right under the Review Employee button
         btnViewReviews = createStyledBtn("📋 View Reviews", 400, new Color(52, 152, 219));
         sideBar.add(btnViewReviews);
 
@@ -269,11 +281,22 @@ public class ManagerFrameReview extends JFrame implements ActionListener {
                 int modelRow = employeeTable.convertRowIndexToModel(viewRow);
                 
                 Object idObj = employeeTable.getModel().getValueAt(modelRow, 0);
+                String employeeId = idObj != null ? idObj.toString() : "";
+                
+                // --- NEW: Self-Review Prevention Logic ---
+                if (employeeId.equals(this.currentUserId)) {
+                    JOptionPane.showMessageDialog(this, 
+                        "Security Policy: You cannot submit a performance review for yourself.", 
+                        "Action Denied", 
+                        JOptionPane.WARNING_MESSAGE);
+                    return; // Stop the code here so the review frame doesn't open
+                }
+                // -----------------------------------------
+
                 Object fnObj = employeeTable.getModel().getValueAt(modelRow, 3);
                 Object lnObj = employeeTable.getModel().getValueAt(modelRow, 4);
                 Object posObj = employeeTable.getModel().getValueAt(modelRow, 8);
                 
-                String employeeId = idObj != null ? idObj.toString() : "";
                 String firstName = fnObj != null ? fnObj.toString() : "";
                 String lastName = lnObj != null ? lnObj.toString() : "";
                 String name = (firstName + " " + lastName).trim();
@@ -282,7 +305,8 @@ public class ManagerFrameReview extends JFrame implements ActionListener {
                 if (name.isEmpty()) name = "Unknown Employee";
 
                 dispose();
-                new ManagerFrameReviewPerf(employeeId, name, pos);
+                // PASSED FORWARD: currentUserId & currentUserName
+                new ManagerFrameReviewPerf(employeeId, name, pos, currentUserId, currentUserName);
             } catch (Exception ex) {
                 ex.printStackTrace();
                 JOptionPane.showMessageDialog(this, "Failed to instantiate the tracking target interface screen: " + ex.getMessage(), "Execution Failure", JOptionPane.ERROR_MESSAGE);
@@ -292,7 +316,6 @@ public class ManagerFrameReview extends JFrame implements ActionListener {
         }
     }
 
-    // NEW: Feature action method to process shifting to the performance reviews display frame
     private void executeViewReviewsAction() {
         int viewRow = employeeTable.getSelectedRow();
         if (viewRow != -1) {
@@ -313,8 +336,8 @@ public class ManagerFrameReview extends JFrame implements ActionListener {
                 if (name.isEmpty()) name = "Unknown Employee";
 
                 dispose();
-                // Assumed targeting frame class processing layout properties
-                new ManagerFrameReviewView(employeeId, name, pos);
+                // PASSED FORWARD: currentUserId & currentUserName
+                new ManagerFrameReviewView(employeeId, name, pos, currentUserId, currentUserName);
             } catch (Exception ex) {
                 ex.printStackTrace();
                 JOptionPane.showMessageDialog(this, "Failed to instantiate the review history screen: " + ex.getMessage(), "Execution Failure", JOptionPane.ERROR_MESSAGE);
@@ -354,7 +377,6 @@ public class ManagerFrameReview extends JFrame implements ActionListener {
         
         for (String targetHeader : columnsToHide) {
             try {
-                // Linear verification tracking to safely isolate indices without layout offset shifts
                 int index = colModel.getColumnIndex(targetHeader);
                 colModel.removeColumn(colModel.getColumn(index));
             } catch (IllegalArgumentException ex) {
@@ -371,10 +393,11 @@ public class ManagerFrameReview extends JFrame implements ActionListener {
                 new LoginFrame();
             } else if (e.getSource() == btnEmpRecords) {
                 dispose();
-                new HRFrame(); 
+                // PASSED FORWARD: currentUserId & currentUserName
+                new HRFrame(currentUserId, currentUserName); 
             } else if (e.getSource() == btnReview) {
                 executeReviewAction();
-            } else if (e.getSource() == btnViewReviews) { // NEW: Intercept view reviews click events
+            } else if (e.getSource() == btnViewReviews) {
                 executeViewReviewsAction();
             }
         } catch (Exception ex) {

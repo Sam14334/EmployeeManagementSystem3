@@ -7,6 +7,7 @@ import java.awt.Font;
 import java.awt.Image;
 import javax.swing.*;
 import java.awt.event.*;
+import java.sql.*;
 import javax.swing.border.LineBorder;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.JTableHeader;
@@ -20,10 +21,10 @@ public class EmployeeFrame extends JFrame implements ActionListener {
     private JLabel lblERS, lblRequestHeading, lblrequestType, lbldescription;
     
     // User Session Data
-    private final String CURRENT_EMP_ID = "EMP-2026-001";
-    private final String CURRENT_EMP_NAME = "Karlo Alatiit";
-    private final String CURRENT_DEPARTMENT = "HR";
-    private final String CURRENT_ROLE = "HR Manager";
+    private String currentUserId;
+    private String currentUserName;
+    private final String CURRENT_DEPARTMENT = "Technical";
+    private final String CURRENT_ROLE = "Employee";
 
     private JComboBox<String> cbrequest;
     private JTextArea txtDescription;
@@ -34,7 +35,9 @@ public class EmployeeFrame extends JFrame implements ActionListener {
     private JPanel sideNav;
     private final Color SIDEBAR_BG = new Color(34, 45, 57);
 
-    public EmployeeFrame(){
+    public EmployeeFrame(String loggedInUserId, String loggedInUserName){
+        this.currentUserId = loggedInUserId;
+        this.currentUserName = loggedInUserName;
         
         setTitle("StaffSync - Employee Request Dashboard");
         setSize(1000, 1000);
@@ -59,17 +62,11 @@ public class EmployeeFrame extends JFrame implements ActionListener {
         lblProfilePic.setBorder(new LineBorder(new Color(255, 255, 255, 50), 2)); 
         sideNav.add(lblProfilePic);
         
-        JLabel lblUser = new JLabel(CURRENT_ROLE + " | " + CURRENT_EMP_NAME, SwingConstants.CENTER);
+        JLabel lblUser = new JLabel(CURRENT_ROLE + " | " + currentUserName, SwingConstants.CENTER);
         lblUser.setForeground(Color.LIGHT_GRAY);
         lblUser.setFont(new Font("Segoe UI", Font.BOLD, 14));
         lblUser.setBounds(30, 140, 200, 25);
         sideNav.add(lblUser);
-        
-        JLabel lblUserDept = new JLabel("Dept: " + CURRENT_DEPARTMENT, SwingConstants.CENTER);
-        lblUserDept.setForeground(Color.GRAY);
-        lblUserDept.setFont(new Font("Segoe UI", Font.PLAIN, 12));
-        lblUserDept.setBounds(30, 165, 200, 20);
-        sideNav.add(lblUserDept);
         
         JLabel lblLogo = new JLabel(new ImageIcon("src\\main\\java\\images\\StaffSyncLogo128.png"));
         lblLogo.setBounds(66, 200, 128, 128); 
@@ -97,7 +94,6 @@ public class EmployeeFrame extends JFrame implements ActionListener {
         cbrequest.setBounds(430, 140, 200, 30);
         add(cbrequest);
         
-        // ADJUSTED: Description Label ay inangat pa natin para hindi nito matakpan ang text field
         lbldescription = new JLabel("Description:");
         lbldescription.setBounds(300, 180, 150, 30);
         lbldescription.setFont(new Font("Segoe UI", Font.BOLD, 14));
@@ -110,8 +106,6 @@ public class EmployeeFrame extends JFrame implements ActionListener {
         txtDescription.setBackground(Color.WHITE);
         txtDescription.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
-        // ADJUSTED: Inakyat sa y=340 ang simula at pinalaki ang height sa 130!
-        // Swak na swak ang taas nito pa-itaas nang hindi naaapektuhan ang table sa ibaba.
         descScroll = new JScrollPane(txtDescription);
         descScroll.setBounds(430, 190, 350, 300); 
         add(descScroll);
@@ -156,8 +150,9 @@ public class EmployeeFrame extends JFrame implements ActionListener {
         sideNav.add(btnSignout);
         
         // --- MATCHED TABLE SYSTEM SETUP ---
+        // MODIFIED: Added the "Notes" column at the end
         String[] cols = {
-            "Employee ID", "Employee Name", "Department", "Role", "Request Type", "Description", "Status"
+            "Req ID", "Employee ID", "Employee Name", "Department", "Role", "Request Type", "Description", "Status", "Notes"
         };
         
         tableModel = new DefaultTableModel(cols, 0) {
@@ -180,7 +175,6 @@ public class EmployeeFrame extends JFrame implements ActionListener {
         header.setForeground(Color.WHITE);
         header.setFont(new Font("SansSerif", Font.BOLD, 13));
 
-        // Nananatili sa y=500 para permanenteng may magandang agwat pababa
         scroll = new JScrollPane(table, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
         scroll.setBounds(280, 500, 650, 440); 
         scroll.setBorder(BorderFactory.createEmptyBorder());
@@ -191,7 +185,8 @@ public class EmployeeFrame extends JFrame implements ActionListener {
             table.getColumnModel().getColumn(i).setPreferredWidth(110);
         }
 
-        table.getColumnModel().getColumn(5).setPreferredWidth(180); 
+        table.getColumnModel().getColumn(6).setPreferredWidth(180); // Description width
+        table.getColumnModel().getColumn(8).setPreferredWidth(180); // Notes width
         
         btnSubmit.addActionListener(this);
         btnUpdate.addActionListener(this);
@@ -200,6 +195,9 @@ public class EmployeeFrame extends JFrame implements ActionListener {
         btnViewDetails.addActionListener(this);
         
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        
+        // Load the live data from MySQL immediately upon opening
+        loadRequestsFromDB();
         setVisible(true);
     }
     
@@ -223,6 +221,48 @@ public class EmployeeFrame extends JFrame implements ActionListener {
         }
     }
     
+    // --- DATABASE: LOAD REQUESTS ---
+    private void loadRequestsFromDB() {
+        tableModel.setRowCount(0); 
+        
+        // MODIFIED: Added r.notes to the query
+        String query = "SELECT r.request_id, r.employee_id, e.first_name, e.last_name, "
+                     + "d.dept_name, e.role, r.request_type, r.description, r.status, r.notes "
+                     + "FROM employee_requests r "
+                     + "INNER JOIN employees e ON r.employee_id = e.employee_id "
+                     + "LEFT JOIN departments d ON e.dept_id = d.dept_id "
+                     + "WHERE r.employee_id = ? "
+                     + "ORDER BY r.request_id DESC"; 
+
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(query)) {
+            
+            pstmt.setString(1, this.currentUserId);
+            
+            try (ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()) {
+                    String fullName = rs.getString("first_name") + " " + rs.getString("last_name");
+                    
+                    tableModel.addRow(new Object[]{
+                        rs.getInt("request_id"),
+                        rs.getString("employee_id"),
+                        fullName.trim(),
+                        rs.getString("dept_name") != null ? rs.getString("dept_name") : "None",
+                        rs.getString("role"),
+                        rs.getString("request_type"),
+                        rs.getString("description"),
+                        rs.getString("status"),
+                        rs.getString("notes") != null ? rs.getString("notes") : "No comment yet" // MODIFIED: Load Notes
+                    });
+                }
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            JOptionPane.showMessageDialog(this, "Could not load requests: " + ex.getMessage(), "Database Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+    
+    // --- DATABASE: INSERT REQUEST ---
     private void handleSubmit(){
         String type = cbrequest.getSelectedItem().toString();
         String desc = txtDescription.getText().trim();
@@ -232,19 +272,28 @@ public class EmployeeFrame extends JFrame implements ActionListener {
             return;
         }
 
-        tableModel.addRow(new Object[]{
-            CURRENT_EMP_ID,
-            CURRENT_EMP_NAME,
-            CURRENT_DEPARTMENT,
-            CURRENT_ROLE,
-            type,
-            desc,
-            "Pending"
-        });
-
-        clearFields();
+        String sql = "INSERT INTO employee_requests (employee_id, request_type, description) VALUES (?, ?, ?)";
+        
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            
+            pstmt.setString(1, currentUserId);
+            pstmt.setString(2, type);
+            pstmt.setString(3, desc);
+            
+            pstmt.executeUpdate();
+            JOptionPane.showMessageDialog(this, "Request submitted successfully!");
+            
+            clearFields();
+            loadRequestsFromDB(); // Refresh the table
+            
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            JOptionPane.showMessageDialog(this, "Failed to submit request: " + ex.getMessage(), "Database Error", JOptionPane.ERROR_MESSAGE);
+        }
     }
 
+    // --- DATABASE: UPDATE REQUEST ---
     private void handleUpdate(){
         int row = table.getSelectedRow();
 
@@ -252,14 +301,23 @@ public class EmployeeFrame extends JFrame implements ActionListener {
             JOptionPane.showMessageDialog(this, "Select a row first.");
             return;
         }
-      
-        String type = tableModel.getValueAt(row, 4).toString();
-        String desc = tableModel.getValueAt(row, 5).toString();
-      
-        JTextField empIDField = new JTextField(CURRENT_EMP_ID);
+        
+        // Security: Prevent editing a request that a Manager already touched
+        String currentStatus = tableModel.getValueAt(row, 7).toString();
+        if (!currentStatus.equals("Pending")) {
+            JOptionPane.showMessageDialog(this, "You cannot edit a request that has already been " + currentStatus + ".", "Action Denied", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+       
+        // Extract Data utilizing the new Column layout
+        String reqId = tableModel.getValueAt(row, 0).toString();
+        String type = tableModel.getValueAt(row, 5).toString();
+        String desc = tableModel.getValueAt(row, 6).toString();
+       
+        JTextField empIDField = new JTextField(currentUserId);
         empIDField.setEditable(false); 
         
-        JTextField empNameField = new JTextField(CURRENT_EMP_NAME);
+        JTextField empNameField = new JTextField(currentUserName);
         empNameField.setEditable(false); 
 
         JComboBox<String> typeBox = new JComboBox<>(new String[]{"Leave", "Overtime", "Expenses"});
@@ -305,7 +363,7 @@ public class EmployeeFrame extends JFrame implements ActionListener {
         panel.add(descScrollEdit);
 
         int result = JOptionPane.showConfirmDialog(
-                this, panel, "Edit Employee Request", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE
+                this, panel, "Edit Employee Request #" + reqId, JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE
         );
 
         if(result == JOptionPane.OK_OPTION){
@@ -316,13 +374,26 @@ public class EmployeeFrame extends JFrame implements ActionListener {
                 return;
             }
          
-            tableModel.setValueAt(typeBox.getSelectedItem().toString(), row, 4);
-            tableModel.setValueAt(newDesc, row, 5);
-
-            JOptionPane.showMessageDialog(this, "Updated successfully!");
+            String sql = "UPDATE employee_requests SET request_type = ?, description = ? WHERE request_id = ?";
+            try (Connection conn = DBConnection.getConnection();
+                 PreparedStatement pstmt = conn.prepareStatement(sql)) {
+                
+                pstmt.setString(1, typeBox.getSelectedItem().toString());
+                pstmt.setString(2, newDesc);
+                pstmt.setString(3, reqId);
+                
+                pstmt.executeUpdate();
+                JOptionPane.showMessageDialog(this, "Updated successfully!");
+                loadRequestsFromDB(); // Refresh table
+                
+            } catch (Exception ex) {
+                ex.printStackTrace();
+                JOptionPane.showMessageDialog(this, "Update failed: " + ex.getMessage(), "Database Error", JOptionPane.ERROR_MESSAGE);
+            }
         }
     }
         
+    // --- DATABASE: DELETE REQUEST ---
     private void handleDelete(){
         int row = table.getSelectedRow();
 
@@ -331,7 +402,33 @@ public class EmployeeFrame extends JFrame implements ActionListener {
             return;
         }
 
-        tableModel.removeRow(row);
+        // Security: Prevent deleting processed requests
+        String currentStatus = tableModel.getValueAt(row, 7).toString();
+        if (!currentStatus.equals("Pending")) {
+            JOptionPane.showMessageDialog(this, "You cannot delete a request that has already been " + currentStatus + ".", "Action Denied", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        String reqId = tableModel.getValueAt(row, 0).toString();
+        
+        int confirm = JOptionPane.showConfirmDialog(this, "Are you sure you want to withdraw Request #" + reqId + "?", "Confirm Deletion", JOptionPane.YES_NO_OPTION);
+        
+        if (confirm == JOptionPane.YES_OPTION) {
+            String sql = "DELETE FROM employee_requests WHERE request_id = ?";
+            try (Connection conn = DBConnection.getConnection();
+                 PreparedStatement pstmt = conn.prepareStatement(sql)) {
+                
+                pstmt.setString(1, reqId);
+                pstmt.executeUpdate();
+                
+                JOptionPane.showMessageDialog(this, "Request withdrawn.");
+                loadRequestsFromDB(); // Refresh table
+                
+            } catch (Exception ex) {
+                ex.printStackTrace();
+                JOptionPane.showMessageDialog(this, "Deletion failed: " + ex.getMessage(), "Database Error", JOptionPane.ERROR_MESSAGE);
+            }
+        }
     }
 
     private void handleViewDetails(){
@@ -342,15 +439,16 @@ public class EmployeeFrame extends JFrame implements ActionListener {
             return;
         }
 
-        String empID = tableModel.getValueAt(row, 0).toString();
-        String empName = tableModel.getValueAt(row, 1).toString();
-        String department = tableModel.getValueAt(row, 2).toString();
-        String role = tableModel.getValueAt(row, 3).toString(); 
-        String type = tableModel.getValueAt(row, 4).toString();
-        String desc = tableModel.getValueAt(row, 5).toString();
-        String status = tableModel.getValueAt(row, 6).toString();
-
-        String comment = "No comment yet";
+        // MODIFIED: Fetch the "Notes" column from the model (Index 8)
+        String reqID = tableModel.getValueAt(row, 0).toString();
+        String empID = tableModel.getValueAt(row, 1).toString();
+        String empName = tableModel.getValueAt(row, 2).toString();
+        String department = tableModel.getValueAt(row, 3).toString();
+        String role = tableModel.getValueAt(row, 4).toString(); 
+        String type = tableModel.getValueAt(row, 5).toString();
+        String desc = tableModel.getValueAt(row, 6).toString();
+        String status = tableModel.getValueAt(row, 7).toString();
+        String comment = tableModel.getValueAt(row, 8).toString(); // Fetches Manager's Note
 
         String message =
                 "EMPLOYEE DETAILS\n\n" +
@@ -360,6 +458,7 @@ public class EmployeeFrame extends JFrame implements ActionListener {
                 "Role: " + role + "\n\n" + 
 
                 "REQUEST DETAILS\n" +
+                "Req ID: " + reqID + "\n" +
                 "Type: " + type + "\n" +
                 "Description: " + desc + "\n" +
                 "Status: " + status + "\n\n" +

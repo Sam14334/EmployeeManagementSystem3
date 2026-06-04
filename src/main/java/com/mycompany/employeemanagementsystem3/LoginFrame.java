@@ -162,7 +162,9 @@ public class LoginFrame extends JFrame implements ActionListener {
             return;
         }
 
-        String query = "SELECT username, password, role FROM employees WHERE username = ? AND password = ? AND role = ?";
+        // MODIFIED: Updated query to fetch first_name and last_name 
+        // Note: If your database uses a single column like 'name' or 'full_name', adjust the SELECT statement accordingly.
+        String query = "SELECT employee_id, first_name, last_name, role FROM employees WHERE username = ? AND password = ? AND role = ?";
 
         // 2. Try-With-Resources Transaction Handler
         try (Connection connection = DBConnection.getConnection()) {
@@ -177,19 +179,29 @@ public class LoginFrame extends JFrame implements ActionListener {
 
                 try (ResultSet rs = statement.executeQuery()) {
                     if (rs.next()) {
+                        
+                        // Extract user ID for passing to next frames
+                        String loggedInUserId = rs.getString("employee_id");
+
+                        // MODIFIED: Build the full name from the database fields
+                        String fullName = rs.getString("first_name") + " " + rs.getString("last_name");
+
                         // 3. Nested Target-Frame Security Wrapper
                         try {
                             dispose(); // Safeguard: close the authentication prompt block prior to instantiating target workspaces
                             
                             switch (selectedRole) {
                                 case "HR Staff":
-                                    new HRFrame();
+                                    // MODIFIED: Pass fullName instead of username
+                                    new HRFrame(loggedInUserId, fullName);
                                     break;
                                 case "Manager":
-                                    new ManagerFrameRequests(); 
+                                    // MODIFIED: Pass fullName instead of username
+                                    new ManagerFrameRequests(loggedInUserId, fullName); 
                                     break;
                                 case "Employee":
-                                    new EmployeeFrame();
+                                    // If EmployeeFrame ever takes parameters, you would pass them here as well
+                                    new EmployeeFrame(loggedInUserId, fullName);
                                     break;
                                 default:
                                     JOptionPane.showMessageDialog(this, "The specified identity routing configuration rules are invalid.", "Routing Error", JOptionPane.ERROR_MESSAGE);

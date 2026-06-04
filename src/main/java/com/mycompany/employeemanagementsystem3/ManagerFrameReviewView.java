@@ -1,4 +1,3 @@
-
 package com.mycompany.employeemanagementsystem3;
 
 import java.awt.*;
@@ -24,10 +23,17 @@ public class ManagerFrameReviewView extends JFrame implements ActionListener {
     private String targetEmployeeName;
     private String targetPosition;
 
-    public ManagerFrameReviewView(String employeeId, String employeeName, String position) {
+    // NEW: Session variables to hold the current user's information
+    private String currentUserId;
+    private String currentUserName;
+
+    // MODIFIED: Updated constructor to accept loggedInUserId and loggedInUserName
+    public ManagerFrameReviewView(String employeeId, String employeeName, String position, String loggedInUserId, String loggedInUserName) {
         this.targetEmployeeId = employeeId;
         this.targetEmployeeName = employeeName;
         this.targetPosition = position;
+        this.currentUserId = loggedInUserId;
+        this.currentUserName = loggedInUserName;
         
         initializeLayout();
         loadReviewsFromDatabase(); 
@@ -66,7 +72,8 @@ public class ManagerFrameReviewView extends JFrame implements ActionListener {
             System.err.println("Warning: Sidebar avatar image missing. " + ex.getMessage());
         }
 
-        JLabel lblUser = new JLabel("Review Manager | Karlo", SwingConstants.CENTER);
+        // MODIFIED: Now uses the dynamic user name instead of hardcoded "Karlo"
+        JLabel lblUser = new JLabel("Review Manager | " + currentUserName, SwingConstants.CENTER);
         lblUser.setForeground(Color.LIGHT_GRAY);
         lblUser.setFont(new Font("Segoe UI", Font.BOLD, 14));
         lblUser.setBounds(30, 140, 200, 25);
@@ -298,10 +305,12 @@ public class ManagerFrameReviewView extends JFrame implements ActionListener {
                 new LoginFrame();
             } else if (e.getSource() == btnBack || e.getSource() == btnEmpRequests) {
                 dispose();
-                new ManagerFrameReview(); 
+                // MODIFIED: Pass session variables back
+                new ManagerFrameReview(currentUserId, currentUserName); 
             } else if (e.getSource() == btnEmpRecords) {
                 dispose();
-                new HRFrame(); 
+                // MODIFIED: Pass session variables back
+                new HRFrame(currentUserId, currentUserName); 
             }
         } catch (Exception ex) {
             ex.printStackTrace();

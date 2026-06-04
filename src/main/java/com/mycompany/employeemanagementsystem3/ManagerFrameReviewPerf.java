@@ -1,4 +1,3 @@
-
 package com.mycompany.employeemanagementsystem3;
 
 import java.awt.*;
@@ -19,16 +18,22 @@ public class ManagerFrameReviewPerf extends JFrame implements ActionListener {
     private String employeeName; 
     private String employeeId; // NEW: We need this for the database Foreign Key
 
+    // NEW: Session variables to hold the current user's information
+    private String currentUserId;
+    private String currentUserName;
+
     // NEW: Lists to keep track of the radio button groups for each category so we can average them later
     private List<ButtonGroup> behaviorGroups = new ArrayList<>();
     private List<ButtonGroup> commsGroups = new ArrayList<>();
     private List<ButtonGroup> mgmtGroups = new ArrayList<>();
     private List<ButtonGroup> devGroups = new ArrayList<>();
 
-    // NEW: Updated constructor to accept employeeId
-    public ManagerFrameReviewPerf(String employeeId, String name, String position) {
+    // MODIFIED: Updated constructor to accept loggedInUserId and loggedInUserName
+    public ManagerFrameReviewPerf(String employeeId, String name, String position, String loggedInUserId, String loggedInUserName) {
         this.employeeId = employeeId;
         this.employeeName = name;
+        this.currentUserId = loggedInUserId;
+        this.currentUserName = loggedInUserName;
         
         setTitle("StaffSync - Manager - Employee Review: " + name);
         setSize(1000, 1000);
@@ -52,7 +57,8 @@ public class ManagerFrameReviewPerf extends JFrame implements ActionListener {
         lblProfilePic.setBorder(new LineBorder(new Color(255, 255, 255, 50), 2));
         sideBar.add(lblProfilePic);
 
-        JLabel lblUser = new JLabel("Review Manager | Karlo", SwingConstants.CENTER);
+        // MODIFIED: Now uses the dynamic user name instead of hardcoded "Karlo"
+        JLabel lblUser = new JLabel("Review Manager | " + currentUserName, SwingConstants.CENTER);
         lblUser.setForeground(Color.LIGHT_GRAY);
         lblUser.setFont(new Font("Segoe UI", Font.BOLD, 14));
         lblUser.setBounds(30, 140, 200, 25);
@@ -367,8 +373,8 @@ public class ManagerFrameReviewPerf extends JFrame implements ActionListener {
                     pstmt.executeUpdate();
                     JOptionPane.showMessageDialog(this, "Review for " + employeeName + " has been successfully submitted and saved to the database.", "Success", JOptionPane.INFORMATION_MESSAGE);
                     
-                    // Return to previous frame
-                    new ManagerFrameReview(); // Assuming you will pass necessary args here if needed
+                    // MODIFIED: Return to previous frame passing the session variables
+                    new ManagerFrameReview(currentUserId, currentUserName); 
                     dispose();
                 }
 
@@ -382,14 +388,16 @@ public class ManagerFrameReviewPerf extends JFrame implements ActionListener {
             }
 
         } else if (e.getSource() == btnBack) {
-            new ManagerFrameReview();
+            // MODIFIED: Pass session variables back
+            new ManagerFrameReview(currentUserId, currentUserName);
             dispose();
         } else if (e.getSource() == btnSignOut) {
             dispose();
             new LoginFrame();
         } else if (e.getSource() == btnEmpRecords) {
             dispose();
-            new HRFrame();
+            // MODIFIED: Pass session variables back to HRFrame
+            new HRFrame(currentUserId, currentUserName);
         }
     }
 }

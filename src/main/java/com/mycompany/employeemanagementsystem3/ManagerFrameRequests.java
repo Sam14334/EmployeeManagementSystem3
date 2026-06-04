@@ -1,9 +1,8 @@
-
-
 package com.mycompany.employeemanagementsystem3;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.sql.*;
 import javax.swing.*;
 import javax.swing.border.LineBorder;
 import javax.swing.table.DefaultTableModel;
@@ -18,15 +17,22 @@ public class ManagerFrameRequests extends JFrame implements ActionListener {
 
     private JTextField txtSearch;
     private TableRowSorter<DefaultTableModel> tableSorter;
+    private DefaultTableModel model;
 
-    public ManagerFrameRequests() {
+    // Fields to store session information
+    private String currentUserId;
+    private String currentUserName;
+
+    public ManagerFrameRequests(String loggedInUserId, String loggedInUserName) {
+        this.currentUserId = loggedInUserId;
+        this.currentUserName = loggedInUserName;
+
         setTitle("StaffSync - Manager - Process Requests");
         setSize(1000, 1000);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
         setLayout(null);
 
-      
         sideBar = new JPanel();
         sideBar.setBackground(new Color(33, 47, 61));
         sideBar.setBounds(0, 0, 250, 1000);
@@ -40,7 +46,7 @@ public class ManagerFrameRequests extends JFrame implements ActionListener {
         lblProfilePic.setBorder(new LineBorder(new Color(255, 255, 255, 50), 2));
         sideBar.add(lblProfilePic);
 
-        JLabel lblUser = new JLabel("Manager | Karlo", SwingConstants.CENTER);
+        JLabel lblUser = new JLabel("Manager | " + currentUserName, SwingConstants.CENTER);
         lblUser.setForeground(Color.LIGHT_GRAY);
         lblUser.setFont(new Font("Segoe UI", Font.BOLD, 14));
         lblUser.setBounds(30, 140, 200, 25);
@@ -75,7 +81,6 @@ public class ManagerFrameRequests extends JFrame implements ActionListener {
         btnSignOut.addActionListener(this);
         sideBar.add(btnSignOut);
 
-     
         mainContent = new JPanel();
         mainContent.setBackground(new Color(245, 245, 245));
         mainContent.setLayout(null);
@@ -87,7 +92,6 @@ public class ManagerFrameRequests extends JFrame implements ActionListener {
         lblTitle.setBounds(30, 90, 300, 40);
         mainContent.add(lblTitle);
 
-      
         txtSearch = new JTextField(" Search requests...");
         txtSearch.setBounds(430, 100, 290, 32);
         txtSearch.setForeground(Color.GRAY);
@@ -110,17 +114,10 @@ public class ManagerFrameRequests extends JFrame implements ActionListener {
 
         mainContent.add(txtSearch);
 
-      
-        String[] columns = {"ID", "Employee Name", "Request Type", "Date Submitted", "Status", "Notes"};
-        String[][] data = {
-            {"REQ-001", "Jomar N. Pangilinan", "Leave", "2026-04-01", "Pending", "-"},
-            {"REQ-002", "Micheal P. Samia", "Overtime", "2026-04-02", "Approved", "Approved by HR"},
-            {"REQ-003", "Karlo H. Alatiit", "Leave", "2026-04-03", "Pending", "-"},
-            {"REQ-004", "Ezekiel Parao", "Transfer", "2026-04-04", "Pending", "-"},
-            {"REQ-005", "Rich Jasper C. Federio", "Resignation", "2026-04-05", "Denied", "Incomplete papers"}
-        };
-
-        DefaultTableModel model = new DefaultTableModel(data, columns) {
+        // MODIFIED: Replaced Date Submitted with Description so managers can read it!
+        String[] columns = {"ID", "Employee Name", "Request Type", "Description", "Status", "Notes"};
+        
+        model = new DefaultTableModel(columns, 0) {
             public boolean isCellEditable(int row, int column) {
                 return false;
             }
@@ -129,11 +126,9 @@ public class ManagerFrameRequests extends JFrame implements ActionListener {
         requestTable = new JTable(model);
         requestTable.setRowHeight(45);
 
-        
         tableSorter = new TableRowSorter<>(model);
         requestTable.setRowSorter(tableSorter);
 
-        
         requestTable.getTableHeader().setBackground(new Color(33, 47, 61));
         requestTable.getTableHeader().setForeground(Color.WHITE);
         requestTable.getTableHeader().setFont(new Font("SansSerif", Font.BOLD, 13));
@@ -142,7 +137,14 @@ public class ManagerFrameRequests extends JFrame implements ActionListener {
         requestTable.setShowHorizontalLines(true);
         requestTable.setBorder(null);
 
-       
+        // Adjust column widths for better readability
+        requestTable.getColumnModel().getColumn(0).setPreferredWidth(50);
+        requestTable.getColumnModel().getColumn(1).setPreferredWidth(130);
+        requestTable.getColumnModel().getColumn(2).setPreferredWidth(100);
+        requestTable.getColumnModel().getColumn(3).setPreferredWidth(180);
+        requestTable.getColumnModel().getColumn(4).setPreferredWidth(80);
+        requestTable.getColumnModel().getColumn(5).setPreferredWidth(150);
+
         txtSearch.addKeyListener(new KeyAdapter() {
             public void keyReleased(KeyEvent e) {
                 String text = txtSearch.getText();
@@ -157,74 +159,103 @@ public class ManagerFrameRequests extends JFrame implements ActionListener {
 
         JScrollPane scrollPane = new JScrollPane(requestTable);
         scrollPane.setBounds(30, 165, 690, 750);
-
-        
         scrollPane.setBorder(BorderFactory.createEmptyBorder());
         scrollPane.setViewportBorder(BorderFactory.createEmptyBorder());
         scrollPane.getViewport().setBackground(new Color(245, 245, 245));
 
         mainContent.add(scrollPane);
 
+        // Load data from DB on startup
+        loadRequestsFromDB();
+
         setVisible(true);
+    }
+
+    // --- NEW: Load from Database ---
+    private void loadRequestsFromDB() {
+        model.setRowCount(0); 
+        
+        String query = "SELECT r.request_id, e.first_name, e.last_name, r.request_type, r.description, r.status, r.notes "
+                     + "FROM employee_requests r "
+                     + "INNER JOIN employees e ON r.employee_id = e.employee_id "
+                     + "ORDER BY r.request_id DESC";
+
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(query);
+             ResultSet rs = pstmt.executeQuery()) {
+            
+            while (rs.next()) {
+                String fullName = rs.getString("first_name") + " " + rs.getString("last_name");
+                
+                model.addRow(new Object[]{
+                    rs.getInt("request_id"),
+                    fullName.trim(),
+                    rs.getString("request_type"),
+                    rs.getString("description"),
+                    rs.getString("status"),
+                    rs.getString("notes") != null ? rs.getString("notes") : "-"
+                });
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            JOptionPane.showMessageDialog(this, "Could not load requests: " + ex.getMessage(), "Database Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    // --- NEW: Update Database Status ---
+    private void processRequest(String newStatus, String noteInputMsg) {
+        int viewRow = requestTable.getSelectedRow();
+        if (viewRow == -1) {
+            JOptionPane.showMessageDialog(this, "Select a request from the table first.");
+            return;
+        }
+
+        int row = requestTable.convertRowIndexToModel(viewRow);
+        String currentStatus = requestTable.getModel().getValueAt(row, 4).toString();
+
+        if (currentStatus.equals("Approved") || currentStatus.equals("Denied")) {
+            JOptionPane.showMessageDialog(this, "This request has already been processed.");
+            return;
+        }
+
+        String note = JOptionPane.showInputDialog(this, noteInputMsg);
+        if (note != null && !note.trim().isEmpty()) {
+            
+            String reqId = requestTable.getModel().getValueAt(row, 0).toString();
+            String sql = "UPDATE employee_requests SET status = ?, notes = ? WHERE request_id = ?";
+            
+            try (Connection conn = DBConnection.getConnection();
+                 PreparedStatement pstmt = conn.prepareStatement(sql)) {
+                
+                pstmt.setString(1, newStatus);
+                pstmt.setString(2, note);
+                pstmt.setString(3, reqId);
+                
+                pstmt.executeUpdate();
+                JOptionPane.showMessageDialog(this, "Request successfully " + newStatus + "!");
+                
+                loadRequestsFromDB(); // Refresh table
+                
+            } catch (Exception ex) {
+                ex.printStackTrace();
+                JOptionPane.showMessageDialog(this, "Database update failed: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        }
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
-
-      
         if (e.getSource() == btnApprove) {
-            int viewRow = requestTable.getSelectedRow();
-            if (viewRow == -1) {
-                JOptionPane.showMessageDialog(this, "Select a request.");
-                return;
-            }
-
-            int row = requestTable.convertRowIndexToModel(viewRow);
-
-            String status = requestTable.getModel().getValueAt(row, 4).toString();
-
-            if (status.equals("Approved") || status.equals("Denied")) {
-                JOptionPane.showMessageDialog(this, "Already processed.");
-                return;
-            }
-
-            String note = JOptionPane.showInputDialog(this, "Enter approval note:");
-
-            if (note != null && !note.trim().isEmpty()) {
-                requestTable.getModel().setValueAt("Approved", row, 4);
-                requestTable.getModel().setValueAt(note, row, 5);
-            }
+            processRequest("Approved", "Enter approval note:");
         }
 
-        
         if (e.getSource() == btnDeny) {
-            int viewRow = requestTable.getSelectedRow();
-            if (viewRow == -1) {
-                JOptionPane.showMessageDialog(this, "Select a request.");
-                return;
-            }
-
-            int row = requestTable.convertRowIndexToModel(viewRow);
-
-            String status = requestTable.getModel().getValueAt(row, 4).toString();
-
-            if (status.equals("Approved") || status.equals("Denied")) {
-                JOptionPane.showMessageDialog(this, "Already processed.");
-                return;
-            }
-
-            String reason = JOptionPane.showInputDialog(this, "Enter denial reason:");
-
-            if (reason != null && !reason.trim().isEmpty()) {
-                requestTable.getModel().setValueAt("Denied", row, 4);
-                requestTable.getModel().setValueAt(reason, row, 5);
-            }
+            processRequest("Denied", "Enter denial reason:");
         }
 
-        // SIGN OUT
         if (e.getSource() == btnSignOut) {
             dispose();
-             new LoginFrame(); 
+            new LoginFrame(); 
         }
     }
 }

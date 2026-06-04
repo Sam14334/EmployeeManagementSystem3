@@ -16,7 +16,14 @@ public class HRFrame extends JFrame implements ActionListener {
     private JButton btnAdd, btnEdit, btnDelete, btnSignOut;
     private JButton btnEmpRecords, btnEmpRequests;
 
-    public HRFrame() {
+    // Stored credentials to pass to other frames
+    private String loggedInUserId;
+    private String loggedInUsername;
+
+    public HRFrame(String userId, String username) {
+        this.loggedInUserId = userId;
+        this.loggedInUsername = username;
+
         setTitle("StaffSync - HR Dashboard");
         setSize(1000, 1000);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -50,7 +57,8 @@ public class HRFrame extends JFrame implements ActionListener {
             System.err.println("Warning: Profile picture graphic missing. " + ex.getMessage());
         }
 
-        JLabel lblUser = new JLabel("HR Manager | Karlo", SwingConstants.CENTER);
+        // Optionally displays the logged in username on the sidebar
+        JLabel lblUser = new JLabel("HR Manager | " + this.loggedInUsername, SwingConstants.CENTER);
         lblUser.setForeground(Color.LIGHT_GRAY);
         lblUser.setFont(new Font("Segoe UI", Font.BOLD, 14));
         lblUser.setBounds(30, 140, 200, 25);
@@ -278,7 +286,8 @@ public class HRFrame extends JFrame implements ActionListener {
         try {
             if (e.getSource() == btnEmpRequests) {
                 dispose();
-                new ManagerFrameReview(); 
+                // Passing the variables directly into the ManagerFrameReview instance
+                new ManagerFrameReview(loggedInUserId, loggedInUsername); 
             } else if (e.getSource() == btnAdd) {
                 new AddEmployeeFrame(this);
             } else if (e.getSource() == btnEdit) {
