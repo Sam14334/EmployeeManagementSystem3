@@ -88,7 +88,7 @@ public class ManagerFrameReview extends JFrame implements ActionListener {
         }
 
         // MODIFIED: Now uses the dynamic user name instead of hardcoded "Karlo"
-        JLabel lblUser = new JLabel("Review Manager | " + currentUserName, SwingConstants.CENTER);
+        JLabel lblUser = new JLabel("HR Manager | " + currentUserName, SwingConstants.CENTER);
         lblUser.setForeground(Color.LIGHT_GRAY);
         lblUser.setFont(new Font("Segoe UI", Font.BOLD, 14));
         lblUser.setBounds(30, 140, 200, 25);
