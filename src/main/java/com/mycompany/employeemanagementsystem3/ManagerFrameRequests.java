@@ -39,7 +39,7 @@ public class ManagerFrameRequests extends JFrame implements ActionListener {
         sideBar.setLayout(null);
         add(sideBar);
 
-        ImageIcon rawIcon = new ImageIcon("src\\main\\java\\images\\karlo.png");
+        ImageIcon rawIcon = new ImageIcon("src\\main\\java\\images\\pfp.png");
         Image scaledImg = rawIcon.getImage().getScaledInstance(100, 100, Image.SCALE_SMOOTH);
         JLabel lblProfilePic = new JLabel(new ImageIcon(scaledImg));
         lblProfilePic.setBounds(80, 30, 100, 100);

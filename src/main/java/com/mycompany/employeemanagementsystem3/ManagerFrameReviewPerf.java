@@ -48,7 +48,7 @@ public class ManagerFrameReviewPerf extends JFrame implements ActionListener {
         sideBar.setBounds(0, 0, 250, 1000);
         sideBar.setLayout(null);
 
-        ImageIcon rawIcon = new ImageIcon("src\\main\\java\\images\\karlo.png");
+        ImageIcon rawIcon = new ImageIcon("src\\main\\java\\images\\pfp.png");
         Image scaledImg = rawIcon.getImage().getScaledInstance(100, 100, Image.SCALE_SMOOTH);
         ImageIcon finalAvatar = new ImageIcon(scaledImg);
 
