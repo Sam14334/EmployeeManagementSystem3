@@ -9,29 +9,21 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableRowSorter;
 
-public class ManagerFrameReviewView extends JFrame implements ActionListener {
+public class EmployeeFrameReviewView extends JFrame implements ActionListener {
 
     private JPanel sideBar, mainContent;
     private JTable reviewsTable;
     private JButton btnSignOut, btnBack; 
-    private JButton btnEmpRecords, btnEmpRequests;
     private JTextField txtSearch;
     private TableRowSorter<DefaultTableModel> tableSorter;
     private DefaultTableModel model;
     
-    private String targetEmployeeId;
-    private String targetEmployeeName;
-    private String targetPosition;
-
-    // NEW: Session variables to hold the current user's information
+    // Session variables ng Employee
     private String currentUserId;
     private String currentUserName;
+    private final String CURRENT_ROLE = "Employee";
 
-    // MODIFIED: Updated constructor to accept loggedInUserId and loggedInUserName
-    public ManagerFrameReviewView(String employeeId, String employeeName, String position, String loggedInUserId, String loggedInUserName) {
-        this.targetEmployeeId = employeeId;
-        this.targetEmployeeName = employeeName;
-        this.targetPosition = position;
+    public EmployeeFrameReviewView(String loggedInUserId, String loggedInUserName) {
         this.currentUserId = loggedInUserId;
         this.currentUserName = loggedInUserName;
         
@@ -40,7 +32,7 @@ public class ManagerFrameReviewView extends JFrame implements ActionListener {
     }
 
     private void initializeLayout() {
-        setTitle("StaffSync - Manager - View Employee Reviews");
+        setTitle("StaffSync - Employee - My Performance Reviews");
         setSize(1000, 1000);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
@@ -72,8 +64,7 @@ public class ManagerFrameReviewView extends JFrame implements ActionListener {
             System.err.println("Warning: Sidebar avatar image missing. " + ex.getMessage());
         }
 
-        // MODIFIED: Now uses the dynamic user name instead of hardcoded "Karlo"
-        JLabel lblUser = new JLabel("Review Manager | " + currentUserName, SwingConstants.CENTER);
+        JLabel lblUser = new JLabel(CURRENT_ROLE + " | " + currentUserName, SwingConstants.CENTER);
         lblUser.setForeground(Color.LIGHT_GRAY);
         lblUser.setFont(new Font("Segoe UI", Font.BOLD, 14));
         lblUser.setBounds(30, 140, 200, 25);
@@ -88,7 +79,8 @@ public class ManagerFrameReviewView extends JFrame implements ActionListener {
             System.err.println("Warning: Branding logo failed to initialize. " + ex.getMessage());
         }
 
-        btnBack = createStyledBtn("← Employee List", 340, new Color(52, 152, 219));
+        // MODIFIED BACK BUTTON: Ligtas na pabalik sa Employee Dashboard
+        btnBack = createStyledBtn("← Back to Dashboard", 340, new Color(52, 152, 219));
         sideBar.add(btnBack);
 
         btnSignOut = new JButton("Sign out →");
@@ -110,36 +102,16 @@ public class ManagerFrameReviewView extends JFrame implements ActionListener {
 
         Color sidebarDarkGray = new Color(33, 47, 61);
 
-        btnEmpRecords = new JButton("Employee Records");
-        btnEmpRecords.setFont(new Font("SansSerif", Font.BOLD, 18));
-        btnEmpRecords.setBackground(sidebarDarkGray);
-        btnEmpRecords.setForeground(Color.WHITE);
-        btnEmpRecords.setBounds(30, 30, 240, 45);
-        btnEmpRecords.setFocusPainted(false);
-        btnEmpRecords.setBorderPainted(false);
-        btnEmpRecords.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        btnEmpRecords.addActionListener(this);
-        mainContent.add(btnEmpRecords);
+        // Mapapansin mo rito na TINANGGAL na natin yung dalawang malalaking tab buttons sa itaas (Records/Review)
 
-        btnEmpRequests = new JButton("Employee Review");
-        btnEmpRequests.setFont(new Font("SansSerif", Font.BOLD, 18));
-        btnEmpRequests.setBackground(sidebarDarkGray);
-        btnEmpRequests.setForeground(Color.WHITE);
-        btnEmpRequests.setBounds(285, 30, 240, 45);
-        btnEmpRequests.setFocusPainted(false);
-        btnEmpRequests.setBorderPainted(false);
-        btnEmpRequests.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        btnEmpRequests.addActionListener(this);
-        mainContent.add(btnEmpRequests);
-
-        JLabel lblHeaderMeta = new JLabel("Reviews For: " + targetEmployeeName + " (" + targetPosition + ")");
-        lblHeaderMeta.setBounds(30, 95, 400, 32);
-        lblHeaderMeta.setFont(new Font("SansSerif", Font.BOLD, 15));
+        JLabel lblHeaderMeta = new JLabel("My Performance Evaluation History");
+        lblHeaderMeta.setBounds(30, 45, 400, 32); // Inangat konti dahil wala na yung top tabs
+        lblHeaderMeta.setFont(new Font("SansSerif", Font.BOLD, 18));
         lblHeaderMeta.setForeground(sidebarDarkGray);
         mainContent.add(lblHeaderMeta);
 
         txtSearch = new JTextField(" Search reviews...");
-        txtSearch.setBounds(440, 95, 280, 32);
+        txtSearch.setBounds(440, 45, 280, 32);
         txtSearch.setFont(new Font("SansSerif", Font.PLAIN, 13));
         txtSearch.setForeground(Color.GRAY);
         txtSearch.setBorder(BorderFactory.createLineBorder(new Color(200, 200, 200), 1));
@@ -162,9 +134,9 @@ public class ManagerFrameReviewView extends JFrame implements ActionListener {
         });
         mainContent.add(txtSearch);
 
-        // --- USING HTML FOR MULTI-LINE HEADERS ---
+        // --- TABLE SETUP ---
         String[] columns = {
-            "Detailed Comments", 
+            "Manager/HR Evaluation Comments", 
             "<html><center>Behavior<br>Score</center></html>", 
             "<html><center>Communication<br>Score</center></html>", 
             "<html><center>Management<br>Score</center></html>", 
@@ -179,11 +151,7 @@ public class ManagerFrameReviewView extends JFrame implements ActionListener {
         };
 
         reviewsTable = new JTable(model);
-        
-        // Increase row height to allow up to 4 lines of text in the comments
         reviewsTable.setRowHeight(85); 
-        
-        // Disable auto resizing so our specific column widths are respected
         reviewsTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF); 
         
         tableSorter = new TableRowSorter<>(model);
@@ -201,12 +169,10 @@ public class ManagerFrameReviewView extends JFrame implements ActionListener {
             }
         });
 
-        // Set Header Styling & Height
         reviewsTable.getTableHeader().setBackground(sidebarDarkGray);
         reviewsTable.getTableHeader().setForeground(Color.WHITE);
         reviewsTable.getTableHeader().setFont(new Font("SansSerif", Font.BOLD, 13));
         
-        // Make the header taller to fit the HTML breaks
         Dimension headerSize = reviewsTable.getTableHeader().getPreferredSize();
         headerSize.height = 50; 
         reviewsTable.getTableHeader().setPreferredSize(headerSize);
@@ -216,18 +182,16 @@ public class ManagerFrameReviewView extends JFrame implements ActionListener {
         reviewsTable.setShowVerticalLines(true);
         reviewsTable.setGridColor(new Color(200, 200, 200));
 
-        // APPLY CUSTOM RENDERER FOR TEXT WRAPPING IN COLUMN 0 (Detailed Comments)
         reviewsTable.getColumnModel().getColumn(0).setCellRenderer(new MultiLineCellRenderer());
 
-        // SET SPECIFIC COLUMN WIDTHS (Total width available inside scrollPane is ~690)
-        reviewsTable.getColumnModel().getColumn(0).setPreferredWidth(320); // Much wider for comments
+        reviewsTable.getColumnModel().getColumn(0).setPreferredWidth(320); 
         reviewsTable.getColumnModel().getColumn(1).setPreferredWidth(90);
         reviewsTable.getColumnModel().getColumn(2).setPreferredWidth(110);
         reviewsTable.getColumnModel().getColumn(3).setPreferredWidth(90);
         reviewsTable.getColumnModel().getColumn(4).setPreferredWidth(90);
 
         JScrollPane scrollPane = new JScrollPane(reviewsTable);
-        scrollPane.setBounds(30, 140, 690, 710);
+        scrollPane.setBounds(30, 100, 690, 750); // Pinalaki pababa ang table area
         scrollPane.setBorder(BorderFactory.createLineBorder(new Color(200,200,200)));
         scrollPane.getViewport().setBackground(new Color(245, 245, 245));
         mainContent.add(scrollPane);
@@ -250,7 +214,7 @@ public class ManagerFrameReviewView extends JFrame implements ActionListener {
                 throw new SQLException("Database connection link is unestablished.");
             }
             try (PreparedStatement pstmt = conn.prepareStatement(query)) {
-                pstmt.setString(1, targetEmployeeId);
+                pstmt.setString(1, currentUserId); // Sariling ID ng employee ang hinahanap natin
                 
                 try (ResultSet rs = pstmt.executeQuery()) {
                     while (rs.next()) {
@@ -303,14 +267,10 @@ public class ManagerFrameReviewView extends JFrame implements ActionListener {
             if (e.getSource() == btnSignOut) {
                 dispose();
                 new LoginFrame();
-            } else if (e.getSource() == btnBack || e.getSource() == btnEmpRequests) {
+            } else if (e.getSource() == btnBack) {
                 dispose();
-                // MODIFIED: Pass session variables back
-                new ManagerFrameReview(currentUserId, currentUserName); 
-            } else if (e.getSource() == btnEmpRecords) {
-                dispose();
-                // MODIFIED: Pass session variables back
-                new HRFrame(currentUserId, currentUserName); 
+                // Ibabalik ang employee sa kanyang Dashboard nang ligtas kasama ang session data nya
+                new EmployeeFrame(currentUserId, currentUserName); 
             }
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -318,13 +278,12 @@ public class ManagerFrameReviewView extends JFrame implements ActionListener {
         }
     }
 
-    // --- CUSTOM RENDERER CLASS FOR TEXT WRAPPING ---
     private class MultiLineCellRenderer extends JTextArea implements TableCellRenderer {
         public MultiLineCellRenderer() {
             setLineWrap(true);
             setWrapStyleWord(true);
             setOpaque(true);
-            setMargin(new Insets(5, 5, 5, 5)); // Adds a little padding inside the cell
+            setMargin(new Insets(5, 5, 5, 5));
             setFont(new Font("SansSerif", Font.PLAIN, 13));
         }
 
@@ -332,7 +291,6 @@ public class ManagerFrameReviewView extends JFrame implements ActionListener {
         public Component getTableCellRendererComponent(JTable table, Object value,
                 boolean isSelected, boolean hasFocus, int row, int column) {
             
-            // Handle row colors (Selected vs Normal)
             if (isSelected) {
                 setBackground(table.getSelectionBackground());
                 setForeground(table.getSelectionForeground());
@@ -341,9 +299,7 @@ public class ManagerFrameReviewView extends JFrame implements ActionListener {
                 setForeground(table.getForeground());
             }
             
-            // Set the text from the database
             setText(value != null ? value.toString() : "");
-            
             return this;
         }
     }

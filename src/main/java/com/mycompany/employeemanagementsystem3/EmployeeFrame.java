@@ -28,7 +28,7 @@ public class EmployeeFrame extends JFrame implements ActionListener {
 
     private JComboBox<String> cbrequest;
     private JTextArea txtDescription;
-    private JButton btnSubmit, btnDelete, btnUpdate, btnSignout, btnViewDetails;
+    private JButton btnSubmit, btnDelete, btnUpdate, btnSignout, btnViewDetails, btnViewReviews;
     private JTable table;
     private JScrollPane scroll, descScroll;
     private DefaultTableModel tableModel;
@@ -131,9 +131,15 @@ public class EmployeeFrame extends JFrame implements ActionListener {
         btnViewDetails.setForeground(Color.WHITE);
         btnViewDetails.setFont(new Font("Segoe UI", Font.BOLD, 15));
         sideNav.add(btnViewDetails);
+        btnViewReviews = new JButton("Performance Reviews");
+        btnViewReviews.setBounds(30, 560, 200, 50);   
+        btnViewReviews.setBackground(new Color(46, 204, 113)); // Kulay Green
+        btnViewReviews.setForeground(Color.WHITE);
+        btnViewReviews.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        sideNav.add(btnViewReviews);
 
         btnDelete = new JButton("Delete Request");
-        btnDelete.setBounds(30, 560, 200, 50); 
+         btnDelete.setBounds(30, 630, 200, 50); 
         btnDelete.setBackground(DANGER_RED);
         btnDelete.setForeground(Color.WHITE);
         btnDelete.setFont(new Font("Segoe UI", Font.BOLD, 15));
@@ -193,6 +199,7 @@ public class EmployeeFrame extends JFrame implements ActionListener {
         btnDelete.addActionListener(this);
         btnSignout.addActionListener(this);
         btnViewDetails.addActionListener(this);
+        btnViewReviews.addActionListener(this);
         
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         
@@ -218,6 +225,10 @@ public class EmployeeFrame extends JFrame implements ActionListener {
         }
         else if(e.getSource() == btnViewDetails){
             handleViewDetails();
+        }
+        else if(e.getSource() == btnViewReviews){
+            dispose();
+            new EmployeeFrameReviewView(currentUserId, currentUserName);
         }
     }
     
