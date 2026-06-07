@@ -71,7 +71,7 @@ public class ManagerFrameRequests extends JFrame implements ActionListener {
             System.err.println("Warning: Secondary branding asset missing.");
         }
 
-        btnViewDetails = new JButton("🔍 View Details");
+        btnViewDetails = new JButton("View Details");
         btnViewDetails.setBounds(35, 340, 180, 45);
         btnViewDetails.setBackground(new Color(52, 152, 219)); // Deep sky blue matching theme
         btnViewDetails.setForeground(Color.WHITE);

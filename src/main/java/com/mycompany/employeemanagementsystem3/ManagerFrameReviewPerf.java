@@ -32,7 +32,7 @@ public class ManagerFrameReviewPerf extends JFrame implements ActionListener {
         this.currentUserId = loggedInUserId;
         this.currentUserName = loggedInUserName;
 
-        setTitle("StaffSync - Manager - Employee Review: " + name);
+        setTitle("StaffSync - HR - Employee Review: " + name);
         setSize(1000, 1000);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
@@ -53,7 +53,7 @@ public class ManagerFrameReviewPerf extends JFrame implements ActionListener {
         lblProfilePic.setBorder(new LineBorder(new Color(255, 255, 255, 50), 2));
         sideBar.add(lblProfilePic);
 
-        JLabel lblUser = new JLabel("Review Manager | " + currentUserName, SwingConstants.CENTER);
+        JLabel lblUser = new JLabel("HR Manager | " + currentUserName, SwingConstants.CENTER);
         lblUser.setForeground(Color.LIGHT_GRAY);
         lblUser.setFont(new Font("Segoe UI", Font.BOLD, 14));
         lblUser.setBounds(30, 140, 200, 25);
@@ -64,7 +64,7 @@ public class ManagerFrameReviewPerf extends JFrame implements ActionListener {
         lblLogo.setHorizontalAlignment(SwingConstants.CENTER);
         sideBar.add(lblLogo);
 
-        btnSubmit = createStyledBtn("💾 Submit Review", 340, new Color(52, 152, 219));
+        btnSubmit = createStyledBtn("Submit Review", 340, new Color(52, 152, 219));
         btnBack = createStyledBtn("← Back to List", 400, new Color(127, 140, 141));
         sideBar.add(btnSubmit);
         sideBar.add(btnBack);

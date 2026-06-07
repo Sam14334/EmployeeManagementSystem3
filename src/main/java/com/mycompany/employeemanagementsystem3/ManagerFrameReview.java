@@ -52,7 +52,7 @@ public class ManagerFrameReview extends JFrame implements ActionListener {
     }
 
     private void initializeLayout() {
-        setTitle("StaffSync - Manager - Employee List");
+        setTitle("StaffSync - HR - Employee List");
         setSize(1000, 1000);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
@@ -98,10 +98,10 @@ public class ManagerFrameReview extends JFrame implements ActionListener {
             System.err.println("Warning: Branding logo failed to initialize. " + ex.getMessage());
         }
 
-        btnReview = createStyledBtn("🔍 Review Employee", 340, new Color(52, 152, 219));
+        btnReview = createStyledBtn("Review Employee", 340, new Color(52, 152, 219));
         sideBar.add(btnReview);
 
-        btnViewReviews = createStyledBtn("📋 View Reviews", 400, new Color(52, 152, 219));
+        btnViewReviews = createStyledBtn("View Reviews", 400, new Color(52, 152, 219));
         sideBar.add(btnViewReviews);
 
         btnSignOut = new JButton("Sign out →");

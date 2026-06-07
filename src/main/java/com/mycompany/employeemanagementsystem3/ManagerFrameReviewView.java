@@ -38,7 +38,7 @@ public class ManagerFrameReviewView extends JFrame implements ActionListener {
     }
 
     private void initializeLayout() {
-        setTitle("StaffSync - Manager - View Employee Reviews");
+        setTitle("StaffSync - HR - View Employee Reviews");
         setSize(1000, 1000);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
@@ -69,7 +69,7 @@ public class ManagerFrameReviewView extends JFrame implements ActionListener {
             System.err.println("Warning: Sidebar avatar image missing. " + ex.getMessage());
         }
 
-        JLabel lblUser = new JLabel("Review Manager | " + currentUserName, SwingConstants.CENTER);
+        JLabel lblUser = new JLabel("HR Manager | " + currentUserName, SwingConstants.CENTER);
         lblUser.setForeground(Color.LIGHT_GRAY);
         lblUser.setFont(new Font("Segoe UI", Font.BOLD, 14));
         lblUser.setBounds(30, 140, 200, 25);
@@ -84,7 +84,7 @@ public class ManagerFrameReviewView extends JFrame implements ActionListener {
             System.err.println("Warning: Branding logo failed to initialize. " + ex.getMessage());
         }
 
-        btnBack = createStyledBtn("← Employee List", 340, new Color(52, 152, 219));
+        btnBack = createStyledBtn("← Back to list", 340, new Color(127, 140, 141));
         sideBar.add(btnBack);
 
         btnSignOut = new JButton("Sign out →");

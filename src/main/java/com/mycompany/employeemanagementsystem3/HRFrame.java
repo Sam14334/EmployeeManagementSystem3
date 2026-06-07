@@ -68,9 +68,9 @@ public class HRFrame extends JFrame implements ActionListener {
             System.err.println("Warning: System logo asset failed to initialize. " + ex.getMessage());
         }
 
-        btnAdd = createStyledBtn("+ Add Employee", 340, new Color(52, 152, 219));
-        btnEdit = createStyledBtn("✎ Edit Employee", 400, new Color(52, 152, 219));
-        btnDelete = createStyledBtn("🗑 Delete Record", 460, new Color(231, 76, 60));
+        btnAdd = createStyledBtn("Add Employee", 340, new Color(52, 152, 219));
+        btnEdit = createStyledBtn("Edit Employee", 400, new Color(52, 152, 219));
+        btnDelete = createStyledBtn("Delete Record", 460, new Color(231, 76, 60));
 
         sideBar.add(btnAdd);
         sideBar.add(btnEdit);
