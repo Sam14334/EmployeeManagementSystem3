@@ -8,18 +8,21 @@ public class ViewRequestDetailsFrame extends JDialog {
 
     public ViewRequestDetailsFrame(JFrame parent, String reqId, String empName, String reqType, String desc, String status, String notes) {
         super(parent, "Transaction Summary Ledger Log Details", true);
-        
+
         setSize(520, 540);
         setLayout(null);
         setLocationRelativeTo(parent);
         setResizable(false);
         getContentPane().setBackground(new Color(30, 30, 30));
 
-        // Color coordinate based on historical execution status entries
         Color statusColor = Color.LIGHT_GRAY;
-        if (status.equalsIgnoreCase("Approved")) statusColor = new Color(40, 167, 69);
-        else if (status.equalsIgnoreCase("Denied")) statusColor = new Color(231, 76, 60);
-        else if (status.equalsIgnoreCase("Pending")) statusColor = new Color(241, 196, 15);
+        if (status.equalsIgnoreCase("Approved")) {
+            statusColor = new Color(40, 167, 69);
+        } else if (status.equalsIgnoreCase("Denied")) {
+            statusColor = new Color(231, 76, 60);
+        } else if (status.equalsIgnoreCase("Pending")) {
+            statusColor = new Color(241, 196, 15);
+        }
 
         JLabel lblTitle = new JLabel("Request Tracking Log Details (ID: " + reqId + ")");
         lblTitle.setFont(new Font("Segoe UI", Font.BOLD, 20));
@@ -51,7 +54,6 @@ public class ViewRequestDetailsFrame extends JDialog {
         lblStatusVal.setBounds(225, 115, 200, 20);
         add(lblStatusVal);
 
-        // --- DESCRIPTION TEXT AREA SCROLL CONTAINER ---
         JLabel lblDescTitle = new JLabel("Employee Description Statement:");
         lblDescTitle.setFont(new Font("Segoe UI", Font.BOLD, 13));
         lblDescTitle.setForeground(Color.GRAY);
@@ -72,7 +74,6 @@ public class ViewRequestDetailsFrame extends JDialog {
         scrollDesc.setBorder(new MatteBorder(1, 1, 1, 1, Color.DARK_GRAY));
         add(scrollDesc);
 
-        // --- MANAGEMENT REMARKS/NOTES TEXT AREA SCROLL CONTAINER ---
         JLabel lblNotesTitle = new JLabel("Management Resolution Evaluation Notes:");
         lblNotesTitle.setFont(new Font("Segoe UI", Font.BOLD, 13));
         lblNotesTitle.setForeground(Color.GRAY);
@@ -93,7 +94,6 @@ public class ViewRequestDetailsFrame extends JDialog {
         scrollNotes.setBorder(new MatteBorder(1, 1, 1, 1, Color.DARK_GRAY));
         add(scrollNotes);
 
-       
         setVisible(true);
     }
 }

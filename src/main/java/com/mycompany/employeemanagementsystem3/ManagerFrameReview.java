@@ -13,31 +13,28 @@ public class ManagerFrameReview extends JFrame implements ActionListener {
 
     private JPanel sideBar, mainContent;
     private JTable employeeTable;
-    private JButton btnSignOut, btnReview, btnViewReviews; 
+    private JButton btnSignOut, btnReview, btnViewReviews;
     private JButton btnEmpRecords, btnEmpRequests;
     private JTextField txtSearch;
     private TableRowSorter<DefaultTableModel> tableSorter;
     private DefaultTableModel model;
-    
-    // NEW: Session variables to hold the current user's information
+
     private String currentUserId;
     private String currentUserName;
 
-    // MODIFIED: Constructor now requires the user's ID and Name
     public ManagerFrameReview(String loggedInUserId, String loggedInUserName) {
         this.currentUserId = loggedInUserId;
         this.currentUserName = loggedInUserName;
-        
+
         initializeLayout();
-        loadLiveDatabaseRows(""); 
+        loadLiveDatabaseRows("");
         hideUnnecessaryColumns();
     }
 
-    // MODIFIED: Overloaded constructor also requires user's ID and Name
     public ManagerFrameReview(HRFrame hrSource, String loggedInUserId, String loggedInUserName) {
         this.currentUserId = loggedInUserId;
         this.currentUserName = loggedInUserName;
-        
+
         initializeLayout();
         if (hrSource != null && hrSource.getTableModel() != null) {
             DefaultTableModel hrModel = hrSource.getTableModel();
@@ -49,7 +46,7 @@ public class ManagerFrameReview extends JFrame implements ActionListener {
                 model.addRow(rowData);
             }
         } else {
-            loadLiveDatabaseRows(""); // Fallback to safe DB load
+            loadLiveDatabaseRows("");
         }
         hideUnnecessaryColumns();
     }
@@ -68,7 +65,6 @@ public class ManagerFrameReview extends JFrame implements ActionListener {
             System.err.println("Warning: Taskbar mini icon failed to load. " + ex.getMessage());
         }
 
-        // --- SIDEBAR NAVIGATION ---
         sideBar = new JPanel();
         sideBar.setBackground(new Color(33, 47, 61));
         sideBar.setBounds(0, 0, 250, 1000);
@@ -87,7 +83,6 @@ public class ManagerFrameReview extends JFrame implements ActionListener {
             System.err.println("Warning: Sidebar avatar image missing. " + ex.getMessage());
         }
 
-        // MODIFIED: Now uses the dynamic user name instead of hardcoded "Karlo"
         JLabel lblUser = new JLabel("HR Manager | " + currentUserName, SwingConstants.CENTER);
         lblUser.setForeground(Color.LIGHT_GRAY);
         lblUser.setFont(new Font("Segoe UI", Font.BOLD, 14));
@@ -120,7 +115,6 @@ public class ManagerFrameReview extends JFrame implements ActionListener {
         btnSignOut.addActionListener(this);
         sideBar.add(btnSignOut);
 
-        // --- MAIN CONTENT AREA ---
         mainContent = new JPanel();
         mainContent.setBackground(new Color(245, 245, 245));
         mainContent.setLayout(null);
@@ -155,7 +149,7 @@ public class ManagerFrameReview extends JFrame implements ActionListener {
         txtSearch.setFont(new Font("SansSerif", Font.PLAIN, 13));
         txtSearch.setForeground(Color.GRAY);
         txtSearch.setBorder(BorderFactory.createLineBorder(new Color(200, 200, 200), 1));
-        
+
         txtSearch.addFocusListener(new FocusAdapter() {
             @Override
             public void focusGained(FocusEvent e) {
@@ -164,6 +158,7 @@ public class ManagerFrameReview extends JFrame implements ActionListener {
                     txtSearch.setForeground(Color.BLACK);
                 }
             }
+
             @Override
             public void focusLost(FocusEvent e) {
                 if (txtSearch.getText().trim().isEmpty()) {
@@ -174,12 +169,11 @@ public class ManagerFrameReview extends JFrame implements ActionListener {
         });
         mainContent.add(txtSearch);
 
-        // --- UNIFIED 11-COLUMN CONFIGURATION ---
         String[] columns = {
-            "ID", "Username", "Password", "First Name", "Last Name", 
+            "ID", "Username", "Password", "First Name", "Last Name",
             "Email", "Phone Number", "Department", "Role", "Employment Status", "Salary"
         };
-        
+
         model = new DefaultTableModel(columns, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
@@ -189,11 +183,11 @@ public class ManagerFrameReview extends JFrame implements ActionListener {
 
         employeeTable = new JTable(model);
         employeeTable.setRowHeight(45);
-        employeeTable.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS); 
-        
+        employeeTable.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
+
         tableSorter = new TableRowSorter<>(model);
         employeeTable.setRowSorter(tableSorter);
-        
+
         txtSearch.addKeyListener(new KeyAdapter() {
             @Override
             public void keyReleased(KeyEvent e) {
@@ -222,7 +216,7 @@ public class ManagerFrameReview extends JFrame implements ActionListener {
         employeeTable.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                if (e.getClickCount() == 2) { 
+                if (e.getClickCount() == 2) {
                     executeReviewAction();
                 }
             }
@@ -234,20 +228,19 @@ public class ManagerFrameReview extends JFrame implements ActionListener {
     }
 
     private void loadLiveDatabaseRows(String keyword) {
-        model.setRowCount(0); 
+        model.setRowCount(0);
         String query = "SELECT e.employee_id, e.username, e.password, e.first_name, e.last_name, "
-                     + "e.email, e.phone_number, d.dept_name, e.role, s.status_name, e.salary "
-                     + "FROM employees e "
-                     + "LEFT JOIN departments d ON e.dept_id = d.dept_id "
-                     + "LEFT JOIN employment_statuses s ON e.status_id = s.status_id "
-                     + "ORDER BY e.employee_id ASC";
+                + "e.email, e.phone_number, d.dept_name, e.role, s.status_name, e.salary "
+                + "FROM employees e "
+                + "LEFT JOIN departments d ON e.dept_id = d.dept_id "
+                + "LEFT JOIN employment_statuses s ON e.status_id = s.status_id "
+                + "ORDER BY e.employee_id ASC";
 
         try (Connection conn = DBConnection.getConnection()) {
             if (conn == null) {
                 throw new SQLException("Database pipeline reference configuration channel is empty.");
             }
-            try (Statement stmt = conn.createStatement();
-                 ResultSet rs = stmt.executeQuery(query)) {
+            try (Statement stmt = conn.createStatement(); ResultSet rs = stmt.executeQuery(query)) {
 
                 while (rs.next()) {
                     model.addRow(new Object[]{
@@ -279,33 +272,32 @@ public class ManagerFrameReview extends JFrame implements ActionListener {
         if (viewRow != -1) {
             try {
                 int modelRow = employeeTable.convertRowIndexToModel(viewRow);
-                
+
                 Object idObj = employeeTable.getModel().getValueAt(modelRow, 0);
                 String employeeId = idObj != null ? idObj.toString() : "";
-                
-                // --- NEW: Self-Review Prevention Logic ---
+
                 if (employeeId.equals(this.currentUserId)) {
-                    JOptionPane.showMessageDialog(this, 
-                        "Security Policy: You cannot submit a performance review for yourself.", 
-                        "Action Denied", 
-                        JOptionPane.WARNING_MESSAGE);
-                    return; // Stop the code here so the review frame doesn't open
+                    JOptionPane.showMessageDialog(this,
+                            "Security Policy: You cannot submit a performance review for yourself.",
+                            "Action Denied",
+                            JOptionPane.WARNING_MESSAGE);
+                    return;
                 }
-                // -----------------------------------------
 
                 Object fnObj = employeeTable.getModel().getValueAt(modelRow, 3);
                 Object lnObj = employeeTable.getModel().getValueAt(modelRow, 4);
                 Object posObj = employeeTable.getModel().getValueAt(modelRow, 8);
-                
+
                 String firstName = fnObj != null ? fnObj.toString() : "";
                 String lastName = lnObj != null ? lnObj.toString() : "";
                 String name = (firstName + " " + lastName).trim();
                 String pos = posObj != null ? posObj.toString() : "Employee";
-                
-                if (name.isEmpty()) name = "Unknown Employee";
+
+                if (name.isEmpty()) {
+                    name = "Unknown Employee";
+                }
 
                 dispose();
-                // PASSED FORWARD: currentUserId & currentUserName
                 new ManagerFrameReviewPerf(employeeId, name, pos, currentUserId, currentUserName);
             } catch (Exception ex) {
                 ex.printStackTrace();
@@ -321,22 +313,23 @@ public class ManagerFrameReview extends JFrame implements ActionListener {
         if (viewRow != -1) {
             try {
                 int modelRow = employeeTable.convertRowIndexToModel(viewRow);
-                
+
                 Object idObj = employeeTable.getModel().getValueAt(modelRow, 0);
                 Object fnObj = employeeTable.getModel().getValueAt(modelRow, 3);
                 Object lnObj = employeeTable.getModel().getValueAt(modelRow, 4);
                 Object posObj = employeeTable.getModel().getValueAt(modelRow, 8);
-                
+
                 String employeeId = idObj != null ? idObj.toString() : "";
                 String firstName = fnObj != null ? fnObj.toString() : "";
                 String lastName = lnObj != null ? lnObj.toString() : "";
                 String name = (firstName + " " + lastName).trim();
                 String pos = posObj != null ? posObj.toString() : "Employee";
-                
-                if (name.isEmpty()) name = "Unknown Employee";
+
+                if (name.isEmpty()) {
+                    name = "Unknown Employee";
+                }
 
                 dispose();
-                // PASSED FORWARD: currentUserId & currentUserName
                 new ManagerFrameReviewView(employeeId, name, pos, currentUserId, currentUserName);
             } catch (Exception ex) {
                 ex.printStackTrace();
@@ -359,7 +352,7 @@ public class ManagerFrameReview extends JFrame implements ActionListener {
                 g2.dispose();
             }
         };
-        b.setBounds(25, y, 200, 45); 
+        b.setBounds(25, y, 200, 45);
         b.setBackground(color);
         b.setForeground(Color.WHITE);
         b.setFont(new Font("Segoe UI", Font.BOLD, 14));
@@ -374,13 +367,12 @@ public class ManagerFrameReview extends JFrame implements ActionListener {
     private void hideUnnecessaryColumns() {
         TableColumnModel colModel = employeeTable.getColumnModel();
         String[] columnsToHide = {"Username", "Password", "Email", "Phone Number", "Employment Status"};
-        
+
         for (String targetHeader : columnsToHide) {
             try {
                 int index = colModel.getColumnIndex(targetHeader);
                 colModel.removeColumn(colModel.getColumn(index));
             } catch (IllegalArgumentException ex) {
-                // Handled gracefully: Column was already stripped or does not exist
             }
         }
     }
@@ -394,7 +386,7 @@ public class ManagerFrameReview extends JFrame implements ActionListener {
             } else if (e.getSource() == btnEmpRecords) {
                 dispose();
                 // PASSED FORWARD: currentUserId & currentUserName
-                new HRFrame(currentUserId, currentUserName); 
+                new HRFrame(currentUserId, currentUserName);
             } else if (e.getSource() == btnReview) {
                 executeReviewAction();
             } else if (e.getSource() == btnViewReviews) {

@@ -39,7 +39,6 @@ public class ManagerFrameRequests extends JFrame implements ActionListener {
             System.err.println("Warning: Taskbar icon failed to initialize.");
         }
 
-        // --- SIDEBAR NAVIGATION ---
         sideBar = new JPanel();
         sideBar.setBackground(new Color(33, 47, 61));
         sideBar.setBounds(0, 0, 250, 1000);
@@ -72,7 +71,6 @@ public class ManagerFrameRequests extends JFrame implements ActionListener {
             System.err.println("Warning: Secondary branding asset missing.");
         }
 
-        // --- NEW: VIEW DETAILS BUTTON ---
         btnViewDetails = new JButton("🔍 View Details");
         btnViewDetails.setBounds(35, 340, 180, 45);
         btnViewDetails.setBackground(new Color(52, 152, 219)); // Deep sky blue matching theme
@@ -84,7 +82,6 @@ public class ManagerFrameRequests extends JFrame implements ActionListener {
         btnViewDetails.addActionListener(this);
         sideBar.add(btnViewDetails);
 
-        // Shifted down to accommodate the view button cleanly
         btnApprove = new JButton("Approve Request");
         btnApprove.setBounds(35, 400, 180, 45);
         btnApprove.setBackground(new Color(40, 167, 69));
@@ -118,7 +115,6 @@ public class ManagerFrameRequests extends JFrame implements ActionListener {
         btnSignOut.addActionListener(this);
         sideBar.add(btnSignOut);
 
-        // --- MAIN WORKSPACE PANEL ---
         mainContent = new JPanel();
         mainContent.setBackground(new Color(245, 245, 245));
         mainContent.setLayout(null);
@@ -143,6 +139,7 @@ public class ManagerFrameRequests extends JFrame implements ActionListener {
                     txtSearch.setForeground(Color.BLACK);
                 }
             }
+
             public void focusLost(FocusEvent e) {
                 if (txtSearch.getText().trim().isEmpty()) {
                     txtSearch.setText(" Search requests...");
@@ -153,7 +150,7 @@ public class ManagerFrameRequests extends JFrame implements ActionListener {
         mainContent.add(txtSearch);
 
         String[] columns = {"ID", "Employee Name", "Request Type", "Description", "Status", "Notes"};
-        
+
         model = new DefaultTableModel(columns, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
@@ -193,7 +190,6 @@ public class ManagerFrameRequests extends JFrame implements ActionListener {
             }
         });
 
-        // Double-click table row shortcut to open view details automatically
         requestTable.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
@@ -214,16 +210,14 @@ public class ManagerFrameRequests extends JFrame implements ActionListener {
     }
 
     public void loadRequestsFromDB() {
-        model.setRowCount(0); 
+        model.setRowCount(0);
         String query = "SELECT r.request_id, e.first_name, e.last_name, r.request_type, r.description, r.status, r.notes "
-                     + "FROM employee_requests r "
-                     + "INNER JOIN employees e ON r.employee_id = e.employee_id "
-                     + "ORDER BY r.request_id DESC";
+                + "FROM employee_requests r "
+                + "INNER JOIN employees e ON r.employee_id = e.employee_id "
+                + "ORDER BY r.request_id DESC";
 
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(query);
-             ResultSet rs = pstmt.executeQuery()) {
-            
+        try (Connection conn = DBConnection.getConnection(); PreparedStatement pstmt = conn.prepareStatement(query); ResultSet rs = pstmt.executeQuery()) {
+
             while (rs.next()) {
                 String fullName = rs.getString("first_name") + " " + rs.getString("last_name");
                 model.addRow(new Object[]{
@@ -249,7 +243,7 @@ public class ManagerFrameRequests extends JFrame implements ActionListener {
         }
 
         int modelRow = requestTable.convertRowIndexToModel(viewRow);
-        
+
         String reqId = requestTable.getModel().getValueAt(modelRow, 0).toString();
         String empName = requestTable.getModel().getValueAt(modelRow, 1).toString();
         String reqType = requestTable.getModel().getValueAt(modelRow, 2).toString();
@@ -257,7 +251,6 @@ public class ManagerFrameRequests extends JFrame implements ActionListener {
         String status = requestTable.getModel().getValueAt(modelRow, 4).toString();
         String notes = requestTable.getModel().getValueAt(modelRow, 5).toString();
 
-        // Launch clean view modal window overlay
         new ViewRequestDetailsFrame(this, reqId, empName, reqType, desc, status, notes);
     }
 
@@ -293,7 +286,7 @@ public class ManagerFrameRequests extends JFrame implements ActionListener {
             prepareProcessWindow("Denied");
         } else if (e.getSource() == btnSignOut) {
             dispose();
-            new LoginFrame(); 
+            new LoginFrame();
         }
     }
 }

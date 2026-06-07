@@ -11,10 +11,10 @@ public class ProcessRequestFrame extends JDialog implements ActionListener {
     private JTextArea txtNotes;
     private JButton btnConfirm, btnCancel;
     private String requestId, actionType;
-    private ManagerFrameRequests parentFrame; // Secure, explicitly declared component mapping link
+    private ManagerFrameRequests parentFrame; 
 
     public ProcessRequestFrame(ManagerFrameRequests parent, String reqId, String empName, String reqType, String targetAction) {
-        super(parent, "Review Action Processing Frame", true); // True establishes strict application focus modality
+        super(parent, "Review Action Processing Frame", true); 
         this.parentFrame = parent;
         this.requestId = reqId;
         this.actionType = targetAction;
@@ -25,7 +25,7 @@ public class ProcessRequestFrame extends JDialog implements ActionListener {
         setResizable(false);
         getContentPane().setBackground(new Color(30, 30, 30));
 
-        // Select accent dynamically depending on target action context route
+        
         Color accentColor = actionType.equals("Approved") ? new Color(40, 167, 69) : new Color(231, 76, 60);
 
         JLabel lblTitle = new JLabel("Execute Authorization: " + actionType);
@@ -52,7 +52,6 @@ public class ProcessRequestFrame extends JDialog implements ActionListener {
         lblNotesHeader.setBounds(30, 125, 440, 20);
         add(lblNotesHeader);
 
-        // --- ENHANCED PARAGRAPH SCROLL TEXT AREA WORKSPACE ---
         txtNotes = new JTextArea();
         txtNotes.setFont(new Font("SansSerif", Font.PLAIN, 14));
         txtNotes.setBackground(new Color(40, 40, 40));
@@ -67,7 +66,6 @@ public class ProcessRequestFrame extends JDialog implements ActionListener {
         scrollPane.setBorder(new MatteBorder(1, 1, 1, 1, Color.GRAY));
         add(scrollPane);
 
-        // Action Trigger Configuration
         btnConfirm = new JButton("Confirm " + actionType);
         btnConfirm.setBounds(30, 315, 200, 40);
         btnConfirm.setBackground(accentColor);
@@ -124,12 +122,11 @@ public class ProcessRequestFrame extends JDialog implements ActionListener {
                 int rowsAffected = pstmt.executeUpdate();
                 if (rowsAffected > 0) {
                     JOptionPane.showMessageDialog(this, "Transaction status successfully designated to " + actionType + ".", "Sync Complete", JOptionPane.INFORMATION_MESSAGE);
-                    
-                    // Verifies instance linking context stability before execution
+
                     if (parentFrame != null) {
-                        parentFrame.loadRequestsFromDB(); 
+                        parentFrame.loadRequestsFromDB();
                     }
-                    
+
                     dispose();
                 } else {
                     JOptionPane.showMessageDialog(this, "Record tracking identification index mismatch context variance occurred.", "Execution Failure", JOptionPane.ERROR_MESSAGE);

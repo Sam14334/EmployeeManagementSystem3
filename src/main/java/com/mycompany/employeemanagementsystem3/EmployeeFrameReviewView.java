@@ -13,12 +13,11 @@ public class EmployeeFrameReviewView extends JFrame implements ActionListener {
 
     private JPanel sideBar, mainContent;
     private JTable reviewsTable;
-    private JButton btnSignOut, btnBack; 
+    private JButton btnSignOut, btnBack;
     private JTextField txtSearch;
     private TableRowSorter<DefaultTableModel> tableSorter;
     private DefaultTableModel model;
-    
-    // Session variables ng Employee
+
     private String currentUserId;
     private String currentUserName;
     private final String CURRENT_ROLE = "Employee";
@@ -26,9 +25,9 @@ public class EmployeeFrameReviewView extends JFrame implements ActionListener {
     public EmployeeFrameReviewView(String loggedInUserId, String loggedInUserName) {
         this.currentUserId = loggedInUserId;
         this.currentUserName = loggedInUserName;
-        
+
         initializeLayout();
-        loadReviewsFromDatabase(); 
+        loadReviewsFromDatabase();
     }
 
     private void initializeLayout() {
@@ -45,7 +44,6 @@ public class EmployeeFrameReviewView extends JFrame implements ActionListener {
             System.err.println("Warning: Taskbar mini icon failed to load. " + ex.getMessage());
         }
 
-        // --- SIDEBAR NAVIGATION ---
         sideBar = new JPanel();
         sideBar.setBackground(new Color(33, 47, 61));
         sideBar.setBounds(0, 0, 250, 1000);
@@ -79,7 +77,6 @@ public class EmployeeFrameReviewView extends JFrame implements ActionListener {
             System.err.println("Warning: Branding logo failed to initialize. " + ex.getMessage());
         }
 
-        // MODIFIED BACK BUTTON: Ligtas na pabalik sa Employee Dashboard
         btnBack = createStyledBtn("← Back to Dashboard", 340, new Color(52, 152, 219));
         sideBar.add(btnBack);
 
@@ -94,7 +91,6 @@ public class EmployeeFrameReviewView extends JFrame implements ActionListener {
         btnSignOut.addActionListener(this);
         sideBar.add(btnSignOut);
 
-        // --- MAIN CONTENT AREA ---
         mainContent = new JPanel();
         mainContent.setBackground(new Color(245, 245, 245));
         mainContent.setLayout(null);
@@ -102,10 +98,8 @@ public class EmployeeFrameReviewView extends JFrame implements ActionListener {
 
         Color sidebarDarkGray = new Color(33, 47, 61);
 
-        // Mapapansin mo rito na TINANGGAL na natin yung dalawang malalaking tab buttons sa itaas (Records/Review)
-
         JLabel lblHeaderMeta = new JLabel("My Performance Evaluation History");
-        lblHeaderMeta.setBounds(30, 45, 400, 32); // Inangat konti dahil wala na yung top tabs
+        lblHeaderMeta.setBounds(30, 45, 400, 32);
         lblHeaderMeta.setFont(new Font("SansSerif", Font.BOLD, 18));
         lblHeaderMeta.setForeground(sidebarDarkGray);
         mainContent.add(lblHeaderMeta);
@@ -115,7 +109,7 @@ public class EmployeeFrameReviewView extends JFrame implements ActionListener {
         txtSearch.setFont(new Font("SansSerif", Font.PLAIN, 13));
         txtSearch.setForeground(Color.GRAY);
         txtSearch.setBorder(BorderFactory.createLineBorder(new Color(200, 200, 200), 1));
-        
+
         txtSearch.addFocusListener(new FocusAdapter() {
             @Override
             public void focusGained(FocusEvent e) {
@@ -124,6 +118,7 @@ public class EmployeeFrameReviewView extends JFrame implements ActionListener {
                     txtSearch.setForeground(Color.BLACK);
                 }
             }
+
             @Override
             public void focusLost(FocusEvent e) {
                 if (txtSearch.getText().trim().isEmpty()) {
@@ -134,15 +129,14 @@ public class EmployeeFrameReviewView extends JFrame implements ActionListener {
         });
         mainContent.add(txtSearch);
 
-        // --- TABLE SETUP ---
         String[] columns = {
-            "Manager/HR Evaluation Comments", 
-            "<html><center>Behavior<br>Score</center></html>", 
-            "<html><center>Communication<br>Score</center></html>", 
-            "<html><center>Management<br>Score</center></html>", 
+            "Manager/HR Evaluation Comments",
+            "<html><center>Behavior<br>Score</center></html>",
+            "<html><center>Communication<br>Score</center></html>",
+            "<html><center>Management<br>Score</center></html>",
             "<html><center>Development<br>Score</center></html>"
         };
-        
+
         model = new DefaultTableModel(columns, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
@@ -151,12 +145,12 @@ public class EmployeeFrameReviewView extends JFrame implements ActionListener {
         };
 
         reviewsTable = new JTable(model);
-        reviewsTable.setRowHeight(85); 
-        reviewsTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF); 
-        
+        reviewsTable.setRowHeight(85);
+        reviewsTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+
         tableSorter = new TableRowSorter<>(model);
         reviewsTable.setRowSorter(tableSorter);
-        
+
         txtSearch.addKeyListener(new KeyAdapter() {
             @Override
             public void keyReleased(KeyEvent e) {
@@ -172,9 +166,9 @@ public class EmployeeFrameReviewView extends JFrame implements ActionListener {
         reviewsTable.getTableHeader().setBackground(sidebarDarkGray);
         reviewsTable.getTableHeader().setForeground(Color.WHITE);
         reviewsTable.getTableHeader().setFont(new Font("SansSerif", Font.BOLD, 13));
-        
+
         Dimension headerSize = reviewsTable.getTableHeader().getPreferredSize();
-        headerSize.height = 50; 
+        headerSize.height = 50;
         reviewsTable.getTableHeader().setPreferredSize(headerSize);
 
         reviewsTable.setSelectionBackground(new Color(52, 152, 219, 40));
@@ -184,7 +178,7 @@ public class EmployeeFrameReviewView extends JFrame implements ActionListener {
 
         reviewsTable.getColumnModel().getColumn(0).setCellRenderer(new MultiLineCellRenderer());
 
-        reviewsTable.getColumnModel().getColumn(0).setPreferredWidth(320); 
+        reviewsTable.getColumnModel().getColumn(0).setPreferredWidth(320);
         reviewsTable.getColumnModel().getColumn(1).setPreferredWidth(90);
         reviewsTable.getColumnModel().getColumn(2).setPreferredWidth(110);
         reviewsTable.getColumnModel().getColumn(3).setPreferredWidth(90);
@@ -192,7 +186,7 @@ public class EmployeeFrameReviewView extends JFrame implements ActionListener {
 
         JScrollPane scrollPane = new JScrollPane(reviewsTable);
         scrollPane.setBounds(30, 100, 690, 750); // Pinalaki pababa ang table area
-        scrollPane.setBorder(BorderFactory.createLineBorder(new Color(200,200,200)));
+        scrollPane.setBorder(BorderFactory.createLineBorder(new Color(200, 200, 200)));
         scrollPane.getViewport().setBackground(new Color(245, 245, 245));
         mainContent.add(scrollPane);
 
@@ -202,12 +196,12 @@ public class EmployeeFrameReviewView extends JFrame implements ActionListener {
     }
 
     private void loadReviewsFromDatabase() {
-        model.setRowCount(0); 
-        
+        model.setRowCount(0);
+
         String query = "SELECT review_id, behavior, communication, management, development, details "
-                     + "FROM employee_reviews "
-                     + "WHERE employee_id = ? "
-                     + "ORDER BY review_id DESC";
+                + "FROM employee_reviews "
+                + "WHERE employee_id = ? "
+                + "ORDER BY review_id DESC";
 
         try (Connection conn = DBConnection.getConnection()) {
             if (conn == null) {
@@ -215,7 +209,7 @@ public class EmployeeFrameReviewView extends JFrame implements ActionListener {
             }
             try (PreparedStatement pstmt = conn.prepareStatement(query)) {
                 pstmt.setString(1, currentUserId); // Sariling ID ng employee ang hinahanap natin
-                
+
                 try (ResultSet rs = pstmt.executeQuery()) {
                     while (rs.next()) {
                         model.addRow(new Object[]{
@@ -249,7 +243,7 @@ public class EmployeeFrameReviewView extends JFrame implements ActionListener {
                 g2.dispose();
             }
         };
-        b.setBounds(25, y, 200, 45); 
+        b.setBounds(25, y, 200, 45);
         b.setBackground(color);
         b.setForeground(Color.WHITE);
         b.setFont(new Font("Segoe UI", Font.BOLD, 14));
@@ -269,8 +263,7 @@ public class EmployeeFrameReviewView extends JFrame implements ActionListener {
                 new LoginFrame();
             } else if (e.getSource() == btnBack) {
                 dispose();
-                // Ibabalik ang employee sa kanyang Dashboard nang ligtas kasama ang session data nya
-                new EmployeeFrame(currentUserId, currentUserName); 
+                new EmployeeFrame(currentUserId, currentUserName);
             }
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -279,6 +272,7 @@ public class EmployeeFrameReviewView extends JFrame implements ActionListener {
     }
 
     private class MultiLineCellRenderer extends JTextArea implements TableCellRenderer {
+
         public MultiLineCellRenderer() {
             setLineWrap(true);
             setWrapStyleWord(true);
@@ -290,7 +284,7 @@ public class EmployeeFrameReviewView extends JFrame implements ActionListener {
         @Override
         public Component getTableCellRendererComponent(JTable table, Object value,
                 boolean isSelected, boolean hasFocus, int row, int column) {
-            
+
             if (isSelected) {
                 setBackground(table.getSelectionBackground());
                 setForeground(table.getSelectionForeground());
@@ -298,7 +292,7 @@ public class EmployeeFrameReviewView extends JFrame implements ActionListener {
                 setBackground(table.getBackground());
                 setForeground(table.getForeground());
             }
-            
+
             setText(value != null ? value.toString() : "");
             return this;
         }

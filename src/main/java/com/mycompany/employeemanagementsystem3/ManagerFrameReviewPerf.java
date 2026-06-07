@@ -2,8 +2,8 @@ package com.mycompany.employeemanagementsystem3;
 
 import java.awt.*;
 import java.awt.event.*;
-import java.sql.*; // NEW: For database connection
-import java.util.ArrayList; // NEW: To store radio button groups
+import java.sql.*; 
+import java.util.ArrayList; 
 import java.util.List;
 import javax.swing.*;
 import javax.swing.border.LineBorder;
@@ -14,27 +14,24 @@ public class ManagerFrameReviewPerf extends JFrame implements ActionListener {
     private JButton btnSubmit, btnBack, btnSignOut;
     private JButton btnEmpRecords, btnEmpRequests;
     private JPanel sideBar, mainContent, cardPanel;
-    
-    private String employeeName; 
-    private String employeeId; // NEW: We need this for the database Foreign Key
 
-    // NEW: Session variables to hold the current user's information
+    private String employeeName;
+    private String employeeId; 
+
     private String currentUserId;
     private String currentUserName;
 
-    // NEW: Lists to keep track of the radio button groups for each category so we can average them later
     private List<ButtonGroup> behaviorGroups = new ArrayList<>();
     private List<ButtonGroup> commsGroups = new ArrayList<>();
     private List<ButtonGroup> mgmtGroups = new ArrayList<>();
     private List<ButtonGroup> devGroups = new ArrayList<>();
 
-    // MODIFIED: Updated constructor to accept loggedInUserId and loggedInUserName
     public ManagerFrameReviewPerf(String employeeId, String name, String position, String loggedInUserId, String loggedInUserName) {
         this.employeeId = employeeId;
         this.employeeName = name;
         this.currentUserId = loggedInUserId;
         this.currentUserName = loggedInUserName;
-        
+
         setTitle("StaffSync - Manager - Employee Review: " + name);
         setSize(1000, 1000);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -42,7 +39,6 @@ public class ManagerFrameReviewPerf extends JFrame implements ActionListener {
         setResizable(false);
         setLayout(null);
 
-        // --- SIDEBAR NAVIGATION ---
         sideBar = new JPanel();
         sideBar.setBackground(new Color(33, 47, 61));
         sideBar.setBounds(0, 0, 250, 1000);
@@ -57,7 +53,6 @@ public class ManagerFrameReviewPerf extends JFrame implements ActionListener {
         lblProfilePic.setBorder(new LineBorder(new Color(255, 255, 255, 50), 2));
         sideBar.add(lblProfilePic);
 
-        // MODIFIED: Now uses the dynamic user name instead of hardcoded "Karlo"
         JLabel lblUser = new JLabel("Review Manager | " + currentUserName, SwingConstants.CENTER);
         lblUser.setForeground(Color.LIGHT_GRAY);
         lblUser.setFont(new Font("Segoe UI", Font.BOLD, 14));
@@ -85,7 +80,6 @@ public class ManagerFrameReviewPerf extends JFrame implements ActionListener {
         btnSignOut.addActionListener(this);
         sideBar.add(btnSignOut);
 
-        // --- MAIN CONTENT AREA ---
         mainContent = new JPanel();
         mainContent.setBackground(new Color(245, 245, 245));
         mainContent.setLayout(null);
@@ -115,7 +109,6 @@ public class ManagerFrameReviewPerf extends JFrame implements ActionListener {
         btnEmpRequests.addActionListener(this);
         mainContent.add(btnEmpRequests);
 
-        // --- CARD INTERIOR CONTENT PANEL ---
         cardPanel = new JPanel();
         cardPanel.setLayout(null);
         cardPanel.setBackground(Color.WHITE);
@@ -171,7 +164,6 @@ public class ManagerFrameReviewPerf extends JFrame implements ActionListener {
 
         int currentY = 30;
 
-        // NEW: Passed the specific category lists to the addRatingRow method
         currentY = addCategoryHeader(tableContainer, "A. Professional Behavior", currentY);
         addRatingRow(tableContainer, "1. Maintains punctual attendance and adheres to company work-hour policies.", currentY, behaviorGroups);
         currentY += 55;
@@ -239,7 +231,7 @@ public class ManagerFrameReviewPerf extends JFrame implements ActionListener {
                 g2.dispose();
             }
         };
-        b.setBounds(25, y, 200, 45); 
+        b.setBounds(25, y, 200, 45);
         b.setBackground(color);
         b.setForeground(Color.WHITE);
         b.setFont(new Font("Segoe UI", Font.BOLD, 14));
@@ -267,7 +259,6 @@ public class ManagerFrameReviewPerf extends JFrame implements ActionListener {
         return y + 25;
     }
 
-    // NEW: Added the list parameter so the group gets saved
     private void addRatingRow(JPanel parent, String criteriaText, int y, List<ButtonGroup> categoryList) {
         JTextArea lblCriteria = new JTextArea(criteriaText);
         lblCriteria.setFont(new Font("SansSerif", Font.PLAIN, 11));
@@ -291,31 +282,47 @@ public class ManagerFrameReviewPerf extends JFrame implements ActionListener {
         JRadioButton rb4 = new JRadioButton("4");
         JRadioButton rb5 = new JRadioButton("5");
 
-        // NEW: Set Action Commands so we can easily retrieve the number value later
         rb1.setActionCommand("1");
         rb2.setActionCommand("2");
         rb3.setActionCommand("3");
         rb4.setActionCommand("4");
         rb5.setActionCommand("5");
 
-        rb1.setFont(new Font("SansSerif", Font.PLAIN, 10)); rb1.setBackground(Color.WHITE); rb1.setFocusPainted(false);
-        rb2.setFont(new Font("SansSerif", Font.PLAIN, 10)); rb2.setBackground(Color.WHITE); rb2.setFocusPainted(false);
-        rb3.setFont(new Font("SansSerif", Font.PLAIN, 10)); rb3.setBackground(Color.WHITE); rb3.setFocusPainted(false);
-        rb4.setFont(new Font("SansSerif", Font.PLAIN, 10)); rb4.setBackground(Color.WHITE); rb4.setFocusPainted(false);
-        rb5.setFont(new Font("SansSerif", Font.PLAIN, 10)); rb5.setBackground(Color.WHITE); rb5.setFocusPainted(false);
+        rb1.setFont(new Font("SansSerif", Font.PLAIN, 10));
+        rb1.setBackground(Color.WHITE);
+        rb1.setFocusPainted(false);
+        rb2.setFont(new Font("SansSerif", Font.PLAIN, 10));
+        rb2.setBackground(Color.WHITE);
+        rb2.setFocusPainted(false);
+        rb3.setFont(new Font("SansSerif", Font.PLAIN, 10));
+        rb3.setBackground(Color.WHITE);
+        rb3.setFocusPainted(false);
+        rb4.setFont(new Font("SansSerif", Font.PLAIN, 10));
+        rb4.setBackground(Color.WHITE);
+        rb4.setFocusPainted(false);
+        rb5.setFont(new Font("SansSerif", Font.PLAIN, 10));
+        rb5.setBackground(Color.WHITE);
+        rb5.setFocusPainted(false);
 
-        rb1.setBounds(4,   10, 38, 30);
-        rb2.setBounds(42,  10, 38, 30);
-        rb3.setBounds(80,  10, 38, 30);
+        rb1.setBounds(4, 10, 38, 30);
+        rb2.setBounds(42, 10, 38, 30);
+        rb3.setBounds(80, 10, 38, 30);
         rb4.setBounds(118, 10, 38, 30);
         rb5.setBounds(156, 10, 38, 30);
 
-        group.add(rb1); group.add(rb2); group.add(rb3); group.add(rb4); group.add(rb5);
+        group.add(rb1);
+        group.add(rb2);
+        group.add(rb3);
+        group.add(rb4);
+        group.add(rb5);
 
-        rbPanel.add(rb1); rbPanel.add(rb2); rbPanel.add(rb3); rbPanel.add(rb4); rbPanel.add(rb5);
+        rbPanel.add(rb1);
+        rbPanel.add(rb2);
+        rbPanel.add(rb3);
+        rbPanel.add(rb4);
+        rbPanel.add(rb5);
         parent.add(rbPanel);
 
-        // NEW: Save the ButtonGroup into our tracking list
         categoryList.add(group);
 
         JPanel line = new JPanel();
@@ -326,13 +333,11 @@ public class ManagerFrameReviewPerf extends JFrame implements ActionListener {
         parent.setPreferredSize(new Dimension(430, y + 55));
     }
 
-    // NEW: Helper method to calculate the average of a specific category
     private double calculateAverage(List<ButtonGroup> groups) throws Exception {
         double sum = 0;
         for (ButtonGroup group : groups) {
             if (group.getSelection() == null) {
-                // If a row doesn't have a selection, throw an error to prevent DB submission
-                throw new Exception("Incomplete"); 
+                throw new Exception("Incomplete");
             }
             sum += Integer.parseInt(group.getSelection().getActionCommand());
         }
@@ -342,26 +347,22 @@ public class ManagerFrameReviewPerf extends JFrame implements ActionListener {
     @Override
     public void actionPerformed(ActionEvent e) {
         if (e.getSource() == btnSubmit) {
-            
-            // NEW: Database Insertion Logic
+
             try {
-                // 1. Calculate Averages
                 double avgBehavior = calculateAverage(behaviorGroups);
                 double avgComms = calculateAverage(commsGroups);
                 double avgMgmt = calculateAverage(mgmtGroups);
                 double avgDev = calculateAverage(devGroups);
                 String feedback = txtFeedback.getText();
 
-                // 2. Connect to XAMPP MySQL Database
                 String url = "jdbc:mysql://localhost:3306/db_employee_management";
                 String user = "root";
-                String password = ""; 
+                String password = "";
 
                 try (Connection conn = DriverManager.getConnection(url, user, password)) {
-                    // 3. Prepare the SQL Statement
                     String sql = "INSERT INTO employee_reviews (employee_id, behavior, communication, management, development, details) VALUES (?, ?, ?, ?, ?, ?)";
                     PreparedStatement pstmt = conn.prepareStatement(sql);
-                    
+
                     pstmt.setString(1, this.employeeId);
                     pstmt.setDouble(2, avgBehavior);
                     pstmt.setDouble(3, avgComms);
@@ -369,12 +370,10 @@ public class ManagerFrameReviewPerf extends JFrame implements ActionListener {
                     pstmt.setDouble(5, avgDev);
                     pstmt.setString(6, feedback);
 
-                    // 4. Execute and show success
                     pstmt.executeUpdate();
                     JOptionPane.showMessageDialog(this, "Review for " + employeeName + " has been successfully submitted and saved to the database.", "Success", JOptionPane.INFORMATION_MESSAGE);
-                    
-                    // MODIFIED: Return to previous frame passing the session variables
-                    new ManagerFrameReview(currentUserId, currentUserName); 
+
+                    new ManagerFrameReview(currentUserId, currentUserName);
                     dispose();
                 }
 
@@ -388,7 +387,6 @@ public class ManagerFrameReviewPerf extends JFrame implements ActionListener {
             }
 
         } else if (e.getSource() == btnBack) {
-            // MODIFIED: Pass session variables back
             new ManagerFrameReview(currentUserId, currentUserName);
             dispose();
         } else if (e.getSource() == btnSignOut) {
@@ -396,7 +394,6 @@ public class ManagerFrameReviewPerf extends JFrame implements ActionListener {
             new LoginFrame();
         } else if (e.getSource() == btnEmpRecords) {
             dispose();
-            // MODIFIED: Pass session variables back to HRFrame
             new HRFrame(currentUserId, currentUserName);
         }
     }

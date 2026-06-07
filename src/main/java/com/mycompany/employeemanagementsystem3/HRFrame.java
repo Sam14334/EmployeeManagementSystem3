@@ -16,7 +16,6 @@ public class HRFrame extends JFrame implements ActionListener {
     private JButton btnAdd, btnEdit, btnDelete, btnSignOut;
     private JButton btnEmpRecords, btnEmpRequests;
 
-    // Stored credentials to pass to other frames
     private String loggedInUserId;
     private String loggedInUsername;
 
@@ -30,34 +29,31 @@ public class HRFrame extends JFrame implements ActionListener {
         setLocationRelativeTo(null);
         setResizable(false);
         setLayout(null);
-        
-        // Wrapped icon assignment with local try-catch to prevent asset missing crashes
+
         try {
             setIconImage(new ImageIcon("src\\main\\java\\images\\StaffSyncLogo16.png").getImage());
         } catch (Exception ex) {
             System.err.println("Warning: System frame micro-icon asset missing. " + ex.getMessage());
         }
 
-        // --- SIDEBAR NAVIGATION ---
         sideBar = new JPanel();
         sideBar.setBackground(new Color(33, 47, 61));
         sideBar.setBounds(0, 0, 250, 1000);
         sideBar.setLayout(null);
 
         try {
-            ImageIcon rawIcon = new ImageIcon("src\\main\\java\\images\\pfp.png"); 
+            ImageIcon rawIcon = new ImageIcon("src\\main\\java\\images\\pfp.png");
             Image scaledImg = rawIcon.getImage().getScaledInstance(100, 100, Image.SCALE_SMOOTH);
             ImageIcon finalAvatar = new ImageIcon(scaledImg);
 
             JLabel lblProfilePic = new JLabel(finalAvatar);
             lblProfilePic.setBounds(80, 30, 100, 100);
-            lblProfilePic.setBorder(new LineBorder(new Color(255, 255, 255, 50), 2)); 
+            lblProfilePic.setBorder(new LineBorder(new Color(255, 255, 255, 50), 2));
             sideBar.add(lblProfilePic);
         } catch (Exception ex) {
             System.err.println("Warning: Profile picture graphic missing. " + ex.getMessage());
         }
 
-        // Optionally displays the logged in username on the sidebar
         JLabel lblUser = new JLabel("HR Manager | " + this.loggedInUsername, SwingConstants.CENTER);
         lblUser.setForeground(Color.LIGHT_GRAY);
         lblUser.setFont(new Font("Segoe UI", Font.BOLD, 14));
@@ -66,7 +62,7 @@ public class HRFrame extends JFrame implements ActionListener {
 
         try {
             JLabel lblLogo = new JLabel(new ImageIcon("src\\main\\java\\images\\StaffSyncLogo128.png"));
-            lblLogo.setBounds(66, 185, 128, 128); 
+            lblLogo.setBounds(66, 185, 128, 128);
             sideBar.add(lblLogo);
         } catch (Exception ex) {
             System.err.println("Warning: System logo asset failed to initialize. " + ex.getMessage());
@@ -75,7 +71,7 @@ public class HRFrame extends JFrame implements ActionListener {
         btnAdd = createStyledBtn("+ Add Employee", 340, new Color(52, 152, 219));
         btnEdit = createStyledBtn("✎ Edit Employee", 400, new Color(52, 152, 219));
         btnDelete = createStyledBtn("🗑 Delete Record", 460, new Color(231, 76, 60));
-        
+
         sideBar.add(btnAdd);
         sideBar.add(btnEdit);
         sideBar.add(btnDelete);
@@ -91,7 +87,6 @@ public class HRFrame extends JFrame implements ActionListener {
         btnSignOut.addActionListener(this);
         sideBar.add(btnSignOut);
 
-        // --- MAIN CONTENT AREA ---
         mainContent = new JPanel();
         mainContent.setBackground(new Color(245, 245, 245));
         mainContent.setLayout(null);
@@ -126,7 +121,7 @@ public class HRFrame extends JFrame implements ActionListener {
         txtSearch.setFont(new Font("SansSerif", Font.PLAIN, 13));
         txtSearch.setForeground(Color.GRAY);
         txtSearch.setBorder(BorderFactory.createLineBorder(new Color(200, 200, 200), 1));
-        
+
         txtSearch.addKeyListener(new KeyAdapter() {
             @Override
             public void keyReleased(KeyEvent e) {
@@ -145,36 +140,36 @@ public class HRFrame extends JFrame implements ActionListener {
                     txtSearch.setForeground(Color.BLACK);
                 }
             }
+
             @Override
             public void focusLost(FocusEvent e) {
                 if (txtSearch.getText().trim().isEmpty()) {
                     txtSearch.setText(" Search records...");
                     txtSearch.setForeground(Color.GRAY);
-                    loadDatabaseData(""); 
+                    loadDatabaseData("");
                 }
             }
         });
         mainContent.add(txtSearch);
 
-        // --- UNIFIED 11-COLUMN CONFIGURATION ---
         String[] cols = {
-            "ID", "Username", "Password", "First Name", "Last Name", 
+            "ID", "Username", "Password", "First Name", "Last Name",
             "Email", "Phone Number", "Department", "Role", "Employment Status", "Salary"
         };
-        
+
         model = new DefaultTableModel(cols, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
                 return false;
             }
         };
-        
+
         table = new JTable(model);
         table.setRowHeight(45);
         table.setShowVerticalLines(false);
         table.setSelectionBackground(new Color(52, 152, 219, 40));
         table.setSelectionForeground(Color.BLACK);
-        table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF); 
+        table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 
         JTableHeader header = table.getTableHeader();
         header.setBackground(sidebarDarkGray);
@@ -191,7 +186,6 @@ public class HRFrame extends JFrame implements ActionListener {
             table.getColumnModel().getColumn(i).setPreferredWidth(110);
         }
 
-        // Initialize table dataset
         loadDatabaseData("");
 
         add(sideBar);
@@ -200,13 +194,13 @@ public class HRFrame extends JFrame implements ActionListener {
     }
 
     public void loadDatabaseData(String keyword) {
-        model.setRowCount(0); 
+        model.setRowCount(0);
         String query = "SELECT e.employee_id, e.username, e.password, e.first_name, e.last_name, "
-                     + "e.email, e.phone_number, d.dept_name, e.role, s.status_name, e.salary "
-                     + "FROM employees e "
-                     + "LEFT JOIN departments d ON e.dept_id = d.dept_id "
-                     + "LEFT JOIN employment_statuses s ON e.status_id = s.status_id ";
-        
+                + "e.email, e.phone_number, d.dept_name, e.role, s.status_name, e.salary "
+                + "FROM employees e "
+                + "LEFT JOIN departments d ON e.dept_id = d.dept_id "
+                + "LEFT JOIN employment_statuses s ON e.status_id = s.status_id ";
+
         if (!keyword.isEmpty()) {
             query += "WHERE e.employee_id LIKE ? OR e.first_name LIKE ? OR e.last_name LIKE ? OR d.dept_name LIKE ?";
         }
@@ -216,7 +210,7 @@ public class HRFrame extends JFrame implements ActionListener {
             if (conn == null) {
                 throw new SQLException("Database connection configuration context tracking is offline.");
             }
-            
+
             try (PreparedStatement pstmt = conn.prepareStatement(query)) {
                 if (!keyword.isEmpty()) {
                     String searchPattern = "%" + keyword + "%";
@@ -227,7 +221,7 @@ public class HRFrame extends JFrame implements ActionListener {
                 }
 
                 try (ResultSet rs = pstmt.executeQuery()) {
-                    while(rs.next()) {
+                    while (rs.next()) {
                         model.addRow(new Object[]{
                             rs.getString("employee_id"),
                             rs.getString("username"),
@@ -269,7 +263,7 @@ public class HRFrame extends JFrame implements ActionListener {
                 g2.dispose();
             }
         };
-        b.setBounds(25, y, 200, 45); 
+        b.setBounds(25, y, 200, 45);
         b.setBackground(color);
         b.setForeground(Color.WHITE);
         b.setFont(new Font("Segoe UI", Font.BOLD, 14));
@@ -286,14 +280,16 @@ public class HRFrame extends JFrame implements ActionListener {
         try {
             if (e.getSource() == btnEmpRequests) {
                 dispose();
-                // Passing the variables directly into the ManagerFrameReview instance
-                new ManagerFrameReview(loggedInUserId, loggedInUsername); 
+                new ManagerFrameReview(loggedInUserId, loggedInUsername);
             } else if (e.getSource() == btnAdd) {
                 new AddEmployeeFrame(this);
             } else if (e.getSource() == btnEdit) {
                 int row = table.getSelectedRow();
-                if (row != -1) handleEditForm(row);
-                else showModernMsg("Please select an employee entry row from the data table to edit.", "Selection Missing");
+                if (row != -1) {
+                    handleEditForm(row);
+                } else {
+                    showModernMsg("Please select an employee entry row from the data table to edit.", "Selection Missing");
+                }
             } else if (e.getSource() == btnDelete) {
                 int row = table.getSelectedRow();
                 if (row != -1) {
@@ -305,7 +301,9 @@ public class HRFrame extends JFrame implements ActionListener {
                             deleteEmployeeFromDB(empId, row);
                         }
                     }
-                } else showModernMsg("Please select an employee entry row from the data table to delete.", "Selection Missing");
+                } else {
+                    showModernMsg("Please select an employee entry row from the data table to delete.", "Selection Missing");
+                }
             } else if (e.getSource() == btnSignOut) {
                 dispose();
                 new LoginFrame();
@@ -335,9 +333,8 @@ public class HRFrame extends JFrame implements ActionListener {
     }
 
     private void handleEditForm(int row) {
-        // Fallback default checks for cell properties to avoid null conversions
         String empId = model.getValueAt(row, 0) != null ? model.getValueAt(row, 0).toString() : "";
-        
+
         JTextField user = new JTextField(model.getValueAt(row, 1) != null ? model.getValueAt(row, 1).toString() : "");
         JTextField pass = new JTextField(model.getValueAt(row, 2) != null ? model.getValueAt(row, 2).toString() : "");
         JTextField fn = new JTextField(model.getValueAt(row, 3) != null ? model.getValueAt(row, 3).toString() : "");
@@ -350,16 +347,26 @@ public class HRFrame extends JFrame implements ActionListener {
         JTextField sl = new JTextField(model.getValueAt(row, 10) != null ? model.getValueAt(row, 10).toString().replace(",", "") : "0");
 
         JPanel panel = new JPanel(new GridLayout(0, 2, 10, 8));
-        panel.add(new JLabel("Username:")); panel.add(user);
-        panel.add(new JLabel("Password:")); panel.add(pass);
-        panel.add(new JLabel("First Name:")); panel.add(fn);
-        panel.add(new JLabel("Last Name:")); panel.add(ln);
-        panel.add(new JLabel("Email:")); panel.add(email);
-        panel.add(new JLabel("Phone Number:")); panel.add(phone);
-        panel.add(new JLabel("Department Name:")); panel.add(dept);
-        panel.add(new JLabel("Role (HR Staff/Manager/Employee):")); panel.add(role);
-        panel.add(new JLabel("Status (Regular/Contractual/Probationary):")); panel.add(status);
-        panel.add(new JLabel("Salary:")); panel.add(sl);
+        panel.add(new JLabel("Username:"));
+        panel.add(user);
+        panel.add(new JLabel("Password:"));
+        panel.add(pass);
+        panel.add(new JLabel("First Name:"));
+        panel.add(fn);
+        panel.add(new JLabel("Last Name:"));
+        panel.add(ln);
+        panel.add(new JLabel("Email:"));
+        panel.add(email);
+        panel.add(new JLabel("Phone Number:"));
+        panel.add(phone);
+        panel.add(new JLabel("Department Name:"));
+        panel.add(dept);
+        panel.add(new JLabel("Role (HR Staff/Manager/Employee):"));
+        panel.add(role);
+        panel.add(new JLabel("Status (Regular/Contractual/Probationary):"));
+        panel.add(status);
+        panel.add(new JLabel("Salary:"));
+        panel.add(sl);
 
         JScrollPane scrollPane = new JScrollPane(panel);
         scrollPane.setPreferredSize(new Dimension(420, 420));
@@ -367,14 +374,12 @@ public class HRFrame extends JFrame implements ActionListener {
 
         int result = JOptionPane.showConfirmDialog(this, scrollPane, "Edit Structural Details - ID: " + empId, JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
         if (result == JOptionPane.OK_OPTION) {
-            
-            // 1. Text Field Input Presence Integrity Guards
+
             if (user.getText().trim().isEmpty() || fn.getText().trim().isEmpty() || ln.getText().trim().isEmpty()) {
                 showModernMsg("Operation Cancelled: Username, First Name, and Last Name cannot be left blank.", "Input Validation Error");
                 return;
             }
 
-            // 2. Numerical Transformation Formatting Safeguard Block
             double parsedSalary = 0.00;
             try {
                 parsedSalary = Double.parseDouble(sl.getText().trim().replace(",", ""));
@@ -388,16 +393,15 @@ public class HRFrame extends JFrame implements ActionListener {
             }
 
             String updateQuery = "UPDATE employees SET username=?, password=?, first_name=?, last_name=?, email=?, phone_number=?, "
-                               + "dept_id=(SELECT dept_id FROM departments WHERE dept_name=? LIMIT 1), role=?, "
-                               + "status_id=(SELECT status_id FROM employment_statuses WHERE status_name=? LIMIT 1), salary=? "
-                               + "WHERE employee_id=?";
-            
-            // 3. Database Execution Attempt Block
+                    + "dept_id=(SELECT dept_id FROM departments WHERE dept_name=? LIMIT 1), role=?, "
+                    + "status_id=(SELECT status_id FROM employment_statuses WHERE status_name=? LIMIT 1), salary=? "
+                    + "WHERE employee_id=?";
+
             try (Connection conn = DBConnection.getConnection()) {
                 if (conn == null) {
                     throw new SQLException("SQL server transaction channel could not be formed.");
                 }
-                
+
                 try (PreparedStatement pstmt = conn.prepareStatement(updateQuery)) {
                     pstmt.setString(1, user.getText().trim());
                     pstmt.setString(2, pass.getText().trim());
@@ -414,14 +418,13 @@ public class HRFrame extends JFrame implements ActionListener {
                     int updatedRows = pstmt.executeUpdate();
                     if (updatedRows > 0) {
                         showModernMsg("Employee storage values modified successfully!", "Success");
-                        loadDatabaseData(""); 
+                        loadDatabaseData("");
                     } else {
                         showModernMsg("Update dropped: Ensure your Department and Status entries perfectly match database lookups.", "Constraint Error");
                     }
                 }
             } catch (SQLException ex) {
                 ex.printStackTrace();
-                // Capture primary key/unique key duplicate exceptions (MySQL Code 1062)
                 if (ex.getErrorCode() == 1062) {
                     showModernMsg("Data Conflict: The updated Username is already assigned to another user profile.", "Database Uniqueness Collision");
                 } else {

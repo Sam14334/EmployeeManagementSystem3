@@ -13,30 +13,28 @@ public class ManagerFrameReviewView extends JFrame implements ActionListener {
 
     private JPanel sideBar, mainContent;
     private JTable reviewsTable;
-    private JButton btnSignOut, btnBack; 
+    private JButton btnSignOut, btnBack;
     private JButton btnEmpRecords, btnEmpRequests;
     private JTextField txtSearch;
     private TableRowSorter<DefaultTableModel> tableSorter;
     private DefaultTableModel model;
-    
+
     private String targetEmployeeId;
     private String targetEmployeeName;
     private String targetPosition;
 
-    // NEW: Session variables to hold the current user's information
     private String currentUserId;
     private String currentUserName;
 
-    // MODIFIED: Updated constructor to accept loggedInUserId and loggedInUserName
     public ManagerFrameReviewView(String employeeId, String employeeName, String position, String loggedInUserId, String loggedInUserName) {
         this.targetEmployeeId = employeeId;
         this.targetEmployeeName = employeeName;
         this.targetPosition = position;
         this.currentUserId = loggedInUserId;
         this.currentUserName = loggedInUserName;
-        
+
         initializeLayout();
-        loadReviewsFromDatabase(); 
+        loadReviewsFromDatabase();
     }
 
     private void initializeLayout() {
@@ -53,7 +51,6 @@ public class ManagerFrameReviewView extends JFrame implements ActionListener {
             System.err.println("Warning: Taskbar mini icon failed to load. " + ex.getMessage());
         }
 
-        // --- SIDEBAR NAVIGATION ---
         sideBar = new JPanel();
         sideBar.setBackground(new Color(33, 47, 61));
         sideBar.setBounds(0, 0, 250, 1000);
@@ -72,7 +69,6 @@ public class ManagerFrameReviewView extends JFrame implements ActionListener {
             System.err.println("Warning: Sidebar avatar image missing. " + ex.getMessage());
         }
 
-        // MODIFIED: Now uses the dynamic user name instead of hardcoded "Karlo"
         JLabel lblUser = new JLabel("Review Manager | " + currentUserName, SwingConstants.CENTER);
         lblUser.setForeground(Color.LIGHT_GRAY);
         lblUser.setFont(new Font("Segoe UI", Font.BOLD, 14));
@@ -102,7 +98,6 @@ public class ManagerFrameReviewView extends JFrame implements ActionListener {
         btnSignOut.addActionListener(this);
         sideBar.add(btnSignOut);
 
-        // --- MAIN CONTENT AREA ---
         mainContent = new JPanel();
         mainContent.setBackground(new Color(245, 245, 245));
         mainContent.setLayout(null);
@@ -143,7 +138,7 @@ public class ManagerFrameReviewView extends JFrame implements ActionListener {
         txtSearch.setFont(new Font("SansSerif", Font.PLAIN, 13));
         txtSearch.setForeground(Color.GRAY);
         txtSearch.setBorder(BorderFactory.createLineBorder(new Color(200, 200, 200), 1));
-        
+
         txtSearch.addFocusListener(new FocusAdapter() {
             @Override
             public void focusGained(FocusEvent e) {
@@ -152,6 +147,7 @@ public class ManagerFrameReviewView extends JFrame implements ActionListener {
                     txtSearch.setForeground(Color.BLACK);
                 }
             }
+
             @Override
             public void focusLost(FocusEvent e) {
                 if (txtSearch.getText().trim().isEmpty()) {
@@ -162,15 +158,14 @@ public class ManagerFrameReviewView extends JFrame implements ActionListener {
         });
         mainContent.add(txtSearch);
 
-        // --- USING HTML FOR MULTI-LINE HEADERS ---
         String[] columns = {
-            "Detailed Comments", 
-            "<html><center>Behavior<br>Score</center></html>", 
-            "<html><center>Communication<br>Score</center></html>", 
-            "<html><center>Management<br>Score</center></html>", 
+            "Detailed Comments",
+            "<html><center>Behavior<br>Score</center></html>",
+            "<html><center>Communication<br>Score</center></html>",
+            "<html><center>Management<br>Score</center></html>",
             "<html><center>Development<br>Score</center></html>"
         };
-        
+
         model = new DefaultTableModel(columns, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
@@ -179,16 +174,14 @@ public class ManagerFrameReviewView extends JFrame implements ActionListener {
         };
 
         reviewsTable = new JTable(model);
-        
-        // Increase row height to allow up to 4 lines of text in the comments
-        reviewsTable.setRowHeight(85); 
-        
-        // Disable auto resizing so our specific column widths are respected
-        reviewsTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF); 
-        
+
+        reviewsTable.setRowHeight(85);
+
+        reviewsTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+
         tableSorter = new TableRowSorter<>(model);
         reviewsTable.setRowSorter(tableSorter);
-        
+
         txtSearch.addKeyListener(new KeyAdapter() {
             @Override
             public void keyReleased(KeyEvent e) {
@@ -201,14 +194,12 @@ public class ManagerFrameReviewView extends JFrame implements ActionListener {
             }
         });
 
-        // Set Header Styling & Height
         reviewsTable.getTableHeader().setBackground(sidebarDarkGray);
         reviewsTable.getTableHeader().setForeground(Color.WHITE);
         reviewsTable.getTableHeader().setFont(new Font("SansSerif", Font.BOLD, 13));
-        
-        // Make the header taller to fit the HTML breaks
+
         Dimension headerSize = reviewsTable.getTableHeader().getPreferredSize();
-        headerSize.height = 50; 
+        headerSize.height = 50;
         reviewsTable.getTableHeader().setPreferredSize(headerSize);
 
         reviewsTable.setSelectionBackground(new Color(52, 152, 219, 40));
@@ -216,10 +207,8 @@ public class ManagerFrameReviewView extends JFrame implements ActionListener {
         reviewsTable.setShowVerticalLines(true);
         reviewsTable.setGridColor(new Color(200, 200, 200));
 
-        // APPLY CUSTOM RENDERER FOR TEXT WRAPPING IN COLUMN 0 (Detailed Comments)
         reviewsTable.getColumnModel().getColumn(0).setCellRenderer(new MultiLineCellRenderer());
 
-        // SET SPECIFIC COLUMN WIDTHS (Total width available inside scrollPane is ~690)
         reviewsTable.getColumnModel().getColumn(0).setPreferredWidth(320); // Much wider for comments
         reviewsTable.getColumnModel().getColumn(1).setPreferredWidth(90);
         reviewsTable.getColumnModel().getColumn(2).setPreferredWidth(110);
@@ -228,7 +217,7 @@ public class ManagerFrameReviewView extends JFrame implements ActionListener {
 
         JScrollPane scrollPane = new JScrollPane(reviewsTable);
         scrollPane.setBounds(30, 140, 690, 710);
-        scrollPane.setBorder(BorderFactory.createLineBorder(new Color(200,200,200)));
+        scrollPane.setBorder(BorderFactory.createLineBorder(new Color(200, 200, 200)));
         scrollPane.getViewport().setBackground(new Color(245, 245, 245));
         mainContent.add(scrollPane);
 
@@ -238,12 +227,12 @@ public class ManagerFrameReviewView extends JFrame implements ActionListener {
     }
 
     private void loadReviewsFromDatabase() {
-        model.setRowCount(0); 
-        
+        model.setRowCount(0);
+
         String query = "SELECT review_id, behavior, communication, management, development, details "
-                     + "FROM employee_reviews "
-                     + "WHERE employee_id = ? "
-                     + "ORDER BY review_id DESC";
+                + "FROM employee_reviews "
+                + "WHERE employee_id = ? "
+                + "ORDER BY review_id DESC";
 
         try (Connection conn = DBConnection.getConnection()) {
             if (conn == null) {
@@ -251,7 +240,7 @@ public class ManagerFrameReviewView extends JFrame implements ActionListener {
             }
             try (PreparedStatement pstmt = conn.prepareStatement(query)) {
                 pstmt.setString(1, targetEmployeeId);
-                
+
                 try (ResultSet rs = pstmt.executeQuery()) {
                     while (rs.next()) {
                         model.addRow(new Object[]{
@@ -285,7 +274,7 @@ public class ManagerFrameReviewView extends JFrame implements ActionListener {
                 g2.dispose();
             }
         };
-        b.setBounds(25, y, 200, 45); 
+        b.setBounds(25, y, 200, 45);
         b.setBackground(color);
         b.setForeground(Color.WHITE);
         b.setFont(new Font("Segoe UI", Font.BOLD, 14));
@@ -305,12 +294,10 @@ public class ManagerFrameReviewView extends JFrame implements ActionListener {
                 new LoginFrame();
             } else if (e.getSource() == btnBack || e.getSource() == btnEmpRequests) {
                 dispose();
-                // MODIFIED: Pass session variables back
-                new ManagerFrameReview(currentUserId, currentUserName); 
+                new ManagerFrameReview(currentUserId, currentUserName);
             } else if (e.getSource() == btnEmpRecords) {
                 dispose();
-                // MODIFIED: Pass session variables back
-                new HRFrame(currentUserId, currentUserName); 
+                new HRFrame(currentUserId, currentUserName);
             }
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -318,21 +305,20 @@ public class ManagerFrameReviewView extends JFrame implements ActionListener {
         }
     }
 
-    // --- CUSTOM RENDERER CLASS FOR TEXT WRAPPING ---
     private class MultiLineCellRenderer extends JTextArea implements TableCellRenderer {
+
         public MultiLineCellRenderer() {
             setLineWrap(true);
             setWrapStyleWord(true);
             setOpaque(true);
-            setMargin(new Insets(5, 5, 5, 5)); // Adds a little padding inside the cell
+            setMargin(new Insets(5, 5, 5, 5));
             setFont(new Font("SansSerif", Font.PLAIN, 13));
         }
 
         @Override
         public Component getTableCellRendererComponent(JTable table, Object value,
                 boolean isSelected, boolean hasFocus, int row, int column) {
-            
-            // Handle row colors (Selected vs Normal)
+
             if (isSelected) {
                 setBackground(table.getSelectionBackground());
                 setForeground(table.getSelectionForeground());
@@ -340,10 +326,9 @@ public class ManagerFrameReviewView extends JFrame implements ActionListener {
                 setBackground(table.getBackground());
                 setForeground(table.getForeground());
             }
-            
-            // Set the text from the database
+
             setText(value != null ? value.toString() : "");
-            
+
             return this;
         }
     }
