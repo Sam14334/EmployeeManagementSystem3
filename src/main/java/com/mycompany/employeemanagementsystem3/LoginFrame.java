@@ -8,6 +8,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.LinkedList;  
 
 public class LoginFrame extends JFrame implements ActionListener {
 
@@ -15,6 +16,10 @@ public class LoginFrame extends JFrame implements ActionListener {
     private JPasswordField txtPassword;
     private JComboBox<String> cbRole;
     private JButton btnSubmit, btnClear;
+ 
+    private LinkedList<Long> failedAttempts = new LinkedList<>();
+    private static final int MAX_ATTEMPTS = 3; 
+    private static final long LOCKOUT_TIME_MS = 30000;   
 
     public LoginFrame() {
         setTitle("StaffSync - Login");
@@ -23,15 +28,13 @@ public class LoginFrame extends JFrame implements ActionListener {
         setLocationRelativeTo(null);
         setResizable(false);
         getContentPane().setBackground(new Color(30, 30, 30));
-
-        // Safely load window frame micro-icon asset
+ 
         try {
             setIconImage(new ImageIcon("src\\main\\java\\images\\StaffSyncLogo16.png").getImage());
         } catch (Exception ex) {
             System.err.println("Warning: Login window taskbar icon failed to load. " + ex.getMessage());
         }
-
-        // --- LEFT VISUAL BRAND PANEL ---
+ 
         JLabel leftPanel = new JLabel();
         try {
             leftPanel.setIcon(new ImageIcon("src\\main\\java\\images\\bgimage2blur.png"));
@@ -63,8 +66,7 @@ public class LoginFrame extends JFrame implements ActionListener {
         lblSubtitle.setForeground(Color.LIGHT_GRAY);
         lblSubtitle.setFont(new Font("Segoe UI", Font.PLAIN, 14));
         leftPanel.add(lblSubtitle);
-
-        // --- RIGHT CONTROLS PANEL ---
+ 
         JLabel lblTitle = new JLabel("Log in");
         lblTitle.setBounds(475, 30, 200, 30);
         lblTitle.setForeground(Color.WHITE);
@@ -102,7 +104,7 @@ public class LoginFrame extends JFrame implements ActionListener {
         lblRole.setForeground(Color.GRAY);
         add(lblRole);
 
-        String[] roles = {"Select Position", "HR Staff", "Manager", "Employee"};
+        String[] roles = {"Employee", "HR Staff", "Manager"};
         cbRole = new JComboBox<>(roles);
         cbRole.setBounds(475, 235, 250, 30);
         cbRole.setBackground(new Color(30, 30, 30));
@@ -132,6 +134,8 @@ public class LoginFrame extends JFrame implements ActionListener {
         btnClear.addActionListener(this);
         add(btnClear);
 
+        getRootPane().setDefaultButton(btnSubmit);
+
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setVisible(true);
     }
@@ -143,7 +147,7 @@ public class LoginFrame extends JFrame implements ActionListener {
             } else if (e.getSource() == btnClear) {
                 txtUsername.setText("");
                 txtPassword.setText("");
-                cbRole.setSelectedIndex(0);
+                cbRole.setSelectedIndex(0); 
             }
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -152,21 +156,34 @@ public class LoginFrame extends JFrame implements ActionListener {
     }
 
     private void handleLogin() {
+        
+        if (failedAttempts.size() >= MAX_ATTEMPTS) {
+            long oldestAttempt = failedAttempts.getFirst(); 
+            long timeSinceOldestFail = System.currentTimeMillis() - oldestAttempt;
+
+            if (timeSinceOldestFail < LOCKOUT_TIME_MS) {
+                long secondsLeft = (LOCKOUT_TIME_MS - timeSinceOldestFail) / 1000;
+                JOptionPane.showMessageDialog(this, 
+                    "Too many failed login attempts.\nPlease wait " + secondsLeft + " seconds before trying again.", 
+                    "Security Lock", 
+                    JOptionPane.WARNING_MESSAGE);
+                return; 
+            } else { 
+                failedAttempts.clear();
+            }
+        } 
+
         String username = txtUsername.getText().trim();
         String password = new String(txtPassword.getPassword()).trim();
         String selectedRole = (String) cbRole.getSelectedItem();
 
-        // 1. Text Field Presence Integrity Guard
-        if (selectedRole == null || selectedRole.equals("Select Position") || username.isEmpty() || password.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Please fulfill all required username, password, and position mapping arguments.", "Validation Error", JOptionPane.WARNING_MESSAGE);
+        if (selectedRole == null || username.isEmpty() || password.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Please fulfill all required username and password arguments.", "Validation Error", JOptionPane.WARNING_MESSAGE);
             return;
         }
 
-        // MODIFIED: Updated query to fetch first_name and last_name 
-        // Note: If your database uses a single column like 'name' or 'full_name', adjust the SELECT statement accordingly.
         String query = "SELECT employee_id, first_name, last_name, role FROM employees WHERE username = ? AND password = ? AND role = ?";
 
-        // 2. Try-With-Resources Transaction Handler
         try (Connection connection = DBConnection.getConnection()) {
             if (connection == null) {
                 throw new SQLException("Database connection endpoint returned a null handler sequence.");
@@ -179,33 +196,28 @@ public class LoginFrame extends JFrame implements ActionListener {
 
                 try (ResultSet rs = statement.executeQuery()) {
                     if (rs.next()) {
-                        
-                        // Extract user ID for passing to next frames
-                        String loggedInUserId = rs.getString("employee_id");
+                         
+                        failedAttempts.clear();  
 
-                        // MODIFIED: Build the full name from the database fields
+                        String loggedInUserId = rs.getString("employee_id");
                         String fullName = rs.getString("first_name") + " " + rs.getString("last_name");
 
-                        // 3. Nested Target-Frame Security Wrapper
                         try {
-                            dispose(); // Safeguard: close the authentication prompt block prior to instantiating target workspaces
+                            dispose(); 
                             
                             switch (selectedRole) {
                                 case "HR Staff":
-                                    // MODIFIED: Pass fullName instead of username
                                     new HRFrame(loggedInUserId, fullName);
                                     break;
                                 case "Manager":
-                                    // MODIFIED: Pass fullName instead of username
                                     new ManagerFrameRequests(loggedInUserId, fullName); 
                                     break;
                                 case "Employee":
-                                    // If EmployeeFrame ever takes parameters, you would pass them here as well
                                     new EmployeeFrame(loggedInUserId, fullName);
                                     break;
                                 default:
                                     JOptionPane.showMessageDialog(this, "The specified identity routing configuration rules are invalid.", "Routing Error", JOptionPane.ERROR_MESSAGE);
-                                    setVisible(true); // Restore visibility if caught by default branch conditions
+                                    setVisible(true); 
                                     break;
                             }
                         } catch (Exception targetEx) {
@@ -215,16 +227,21 @@ public class LoginFrame extends JFrame implements ActionListener {
                                 "Verify that your implementation class exists and is error-free.\n\nDetails: " + targetEx.getMessage(), 
                                 "Workspace Frame Crash", 
                                 JOptionPane.ERROR_MESSAGE);
-                            // Bring back login screen so application does not end up hung silently in system background logs
                             setVisible(true);
                         }
                     } else {
+                         
+                        failedAttempts.addLast(System.currentTimeMillis());
+                         
+                        if(failedAttempts.size() > MAX_ATTEMPTS) {
+                            failedAttempts.removeFirst();
+                        } 
+                        
                         JOptionPane.showMessageDialog(this, "Invalid credentials or unauthorized system authority mapping requested.", "Login Denied", JOptionPane.ERROR_MESSAGE);
                     }
                 }
             }
         } catch (SQLException sqlException) {
-            sqlException.printStackTrace();
             JOptionPane.showMessageDialog(this, 
                 "Communications link failure: Could not verify authorization profile.\n" +
                 "Please verify that XAMPP / MySQL services are fully active.\n\nDetails: " + sqlException.getMessage(), 
