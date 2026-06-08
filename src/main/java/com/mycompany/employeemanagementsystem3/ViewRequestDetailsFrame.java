@@ -13,7 +13,9 @@ public class ViewRequestDetailsFrame extends JDialog {
         setLayout(null);
         setLocationRelativeTo(parent);
         setResizable(false);
-        getContentPane().setBackground(new Color(30, 30, 30));
+        
+        // --- MODIFIED: Set the main background to pure White ---
+        getContentPane().setBackground(Color.WHITE);
 
         Color statusColor = Color.LIGHT_GRAY;
         if (status.equalsIgnoreCase("Approved")) {
@@ -30,21 +32,22 @@ public class ViewRequestDetailsFrame extends JDialog {
         lblTitle.setBounds(30, 20, 460, 30);
         add(lblTitle);
 
+        // --- MODIFIED: Text colors changed to Dark Gray so they are visible on white ---
         JLabel lblEmp = new JLabel("Employee Name: " + empName);
         lblEmp.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-        lblEmp.setForeground(Color.LIGHT_GRAY);
+        lblEmp.setForeground(Color.DARK_GRAY);
         lblEmp.setBounds(30, 65, 460, 20);
         add(lblEmp);
 
         JLabel lblType = new JLabel("Request Category Type: " + reqType);
         lblType.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-        lblType.setForeground(Color.LIGHT_GRAY);
+        lblType.setForeground(Color.DARK_GRAY);
         lblType.setBounds(30, 90, 460, 20);
         add(lblType);
 
         JLabel lblStatus = new JLabel("Current Authorization Status: ");
         lblStatus.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-        lblStatus.setForeground(Color.LIGHT_GRAY);
+        lblStatus.setForeground(Color.DARK_GRAY);
         lblStatus.setBounds(30, 115, 200, 20);
         add(lblStatus);
 
@@ -56,34 +59,36 @@ public class ViewRequestDetailsFrame extends JDialog {
 
         JLabel lblDescTitle = new JLabel("Employee Description Statement:");
         lblDescTitle.setFont(new Font("Segoe UI", Font.BOLD, 13));
-        lblDescTitle.setForeground(Color.GRAY);
+        lblDescTitle.setForeground(Color.BLACK);
         lblDescTitle.setBounds(30, 155, 460, 20);
         add(lblDescTitle);
 
+        // --- MODIFIED: Text areas changed to an off-white background with black text ---
         JTextArea txtDesc = new JTextArea(desc);
         txtDesc.setFont(new Font("SansSerif", Font.PLAIN, 13));
-        txtDesc.setBackground(new Color(45, 45, 45));
-        txtDesc.setForeground(Color.WHITE);
+        txtDesc.setBackground(new Color(245, 245, 245)); 
+        txtDesc.setForeground(Color.BLACK);
         txtDesc.setEditable(false);
         txtDesc.setLineWrap(true);
         txtDesc.setWrapStyleWord(true);
         txtDesc.setBorder(BorderFactory.createEmptyBorder(6, 6, 6, 6));
 
+        // --- MODIFIED: Lighter border color for the scroll panes ---
         JScrollPane scrollDesc = new JScrollPane(txtDesc);
         scrollDesc.setBounds(30, 180, 445, 110);
-        scrollDesc.setBorder(new MatteBorder(1, 1, 1, 1, Color.DARK_GRAY));
+        scrollDesc.setBorder(new MatteBorder(1, 1, 1, 1, new Color(200, 200, 200))); 
         add(scrollDesc);
 
         JLabel lblNotesTitle = new JLabel("Management Resolution Evaluation Notes:");
         lblNotesTitle.setFont(new Font("Segoe UI", Font.BOLD, 13));
-        lblNotesTitle.setForeground(Color.GRAY);
+        lblNotesTitle.setForeground(Color.BLACK);
         lblNotesTitle.setBounds(30, 310, 460, 20);
         add(lblNotesTitle);
 
         JTextArea txtNotes = new JTextArea(notes);
         txtNotes.setFont(new Font("SansSerif", Font.PLAIN, 13));
-        txtNotes.setBackground(new Color(45, 45, 45));
-        txtNotes.setForeground(Color.WHITE);
+        txtNotes.setBackground(new Color(245, 245, 245)); 
+        txtNotes.setForeground(Color.BLACK);
         txtNotes.setEditable(false);
         txtNotes.setLineWrap(true);
         txtNotes.setWrapStyleWord(true);
@@ -91,7 +96,7 @@ public class ViewRequestDetailsFrame extends JDialog {
 
         JScrollPane scrollNotes = new JScrollPane(txtNotes);
         scrollNotes.setBounds(30, 335, 445, 110);
-        scrollNotes.setBorder(new MatteBorder(1, 1, 1, 1, Color.DARK_GRAY));
+        scrollNotes.setBorder(new MatteBorder(1, 1, 1, 1, new Color(200, 200, 200))); 
         add(scrollNotes);
 
         setVisible(true);

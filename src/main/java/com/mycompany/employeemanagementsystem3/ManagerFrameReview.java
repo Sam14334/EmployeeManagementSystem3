@@ -276,6 +276,7 @@ public class ManagerFrameReview extends JFrame implements ActionListener {
                 Object idObj = employeeTable.getModel().getValueAt(modelRow, 0);
                 String employeeId = idObj != null ? idObj.toString() : "";
 
+                // 1. Check: Prevent self-review
                 if (employeeId.equals(this.currentUserId)) {
                     JOptionPane.showMessageDialog(this,
                             "Security Policy: You cannot submit a performance review for yourself.",
@@ -283,6 +284,16 @@ public class ManagerFrameReview extends JFrame implements ActionListener {
                             JOptionPane.WARNING_MESSAGE);
                     return;
                 }
+
+                // --- NEW: Prevent duplicate reviews for the same employee ---
+                if (hasExistingReview(employeeId)) {
+                    JOptionPane.showMessageDialog(this, 
+                            "This employee has already been evaluated. You cannot submit multiple performance reviews for the same employee.", 
+                            "Duplicate Review Prevented", 
+                            JOptionPane.WARNING_MESSAGE);
+                    return; // Stop the code here so the review frame doesn't open
+                }
+                // ------------------------------------------------------------
 
                 Object fnObj = employeeTable.getModel().getValueAt(modelRow, 3);
                 Object lnObj = employeeTable.getModel().getValueAt(modelRow, 4);
@@ -397,4 +408,29 @@ public class ManagerFrameReview extends JFrame implements ActionListener {
             JOptionPane.showMessageDialog(this, "Navigation processing route error: " + ex.getMessage(), "System Interface Crash", JOptionPane.ERROR_MESSAGE);
         }
     }
+
+    // --- NEW: Helper method to check the database for existing reviews ---
+    private boolean hasExistingReview(String targetEmployeeId) {
+        String query = "SELECT COUNT(*) AS review_count FROM employee_reviews WHERE employee_id = ?";
+        
+        try (Connection conn = DBConnection.getConnection()) {
+            if (conn == null) return false;
+            
+            try (PreparedStatement pstmt = conn.prepareStatement(query)) {
+                pstmt.setString(1, targetEmployeeId);
+                
+                try (ResultSet rs = pstmt.executeQuery()) {
+                    if (rs.next()) {
+                        // If count is greater than 0, a review already exists!
+                        return rs.getInt("review_count") > 0;
+                    }
+                }
+            }
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+            JOptionPane.showMessageDialog(this, "Failed to verify review history: " + ex.getMessage(), "Database Error", JOptionPane.ERROR_MESSAGE);
+        }
+        return false; 
+    }
+    // ---------------------------------------------------------------------
 }
