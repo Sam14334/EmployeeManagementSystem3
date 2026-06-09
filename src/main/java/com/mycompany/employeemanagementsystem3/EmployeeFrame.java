@@ -469,7 +469,6 @@ public class EmployeeFrame extends JFrame implements ActionListener {
             return;
         }
 
-        // Extracting data exactly from table values
         String reqID = tableModel.getValueAt(row, 0).toString();
         String empID = tableModel.getValueAt(row, 1).toString();
         String empName = tableModel.getValueAt(row, 2).toString();
@@ -480,13 +479,11 @@ public class EmployeeFrame extends JFrame implements ActionListener {
         String status = tableModel.getValueAt(row, 7).toString();
         String comment = tableModel.getValueAt(row, 8).toString();
 
-        // Building stylized modern panel
         JPanel container = new JPanel();
         container.setLayout(new BorderLayout(15, 15));
         container.setPreferredSize(new Dimension(520, 380));
         container.setBorder(new EmptyBorder(10, 10, 10, 10));
 
-        // Metainfo Left Container
         JPanel leftPanel = new JPanel();
         leftPanel.setLayout(new GridLayout(5, 1, 5, 5));
         leftPanel.setBorder(BorderFactory.createTitledBorder(new LineBorder(new Color(215, 219, 221), 1), " Ticket Metainfo ", 0, 0, new Font("Segoe UI", Font.BOLD, 12), BACKGROUND_TEXT_COLOR));
@@ -513,7 +510,6 @@ public class EmployeeFrame extends JFrame implements ActionListener {
             leftPanel.add(line);
         }
 
-        // Operational Right Container
         JPanel rightPanel = new JPanel();
         rightPanel.setLayout(new GridLayout(2, 1, 5, 5));
         rightPanel.setPreferredSize(new Dimension(230, 200));
@@ -536,7 +532,6 @@ public class EmployeeFrame extends JFrame implements ActionListener {
         JLabel valS = new JLabel(status);
         valS.setFont(new Font("Segoe UI", Font.BOLD, 13));
 
-        // Dynamically style status text
         if (status.equalsIgnoreCase("Approved")) {
             valS.setForeground(SUCCESS_GREEN);
         } else if (status.equalsIgnoreCase("Pending")) {
@@ -550,17 +545,14 @@ public class EmployeeFrame extends JFrame implements ActionListener {
         rightPanel.add(typeLine);
         rightPanel.add(statusLine);
 
-        // Top structural wrap split
         JPanel splitTop = new JPanel(new GridLayout(1, 2, 10, 10));
         splitTop.add(leftPanel);
         splitTop.add(rightPanel);
         container.add(splitTop, BorderLayout.NORTH);
 
-        // Lower multi-lined components mapping
         JPanel bottomPanel = new JPanel();
         bottomPanel.setLayout(new GridLayout(2, 1, 10, 10));
 
-        // Description area
         JTextArea areaDesc = new JTextArea(desc);
         areaDesc.setEditable(false);
         areaDesc.setLineWrap(true);
@@ -570,7 +562,6 @@ public class EmployeeFrame extends JFrame implements ActionListener {
         scrollD.setBorder(BorderFactory.createTitledBorder(new LineBorder(new Color(215, 219, 221), 1), " Staff Description Details ", 0, 0, new Font("Segoe UI", Font.BOLD, 11), BACKGROUND_TEXT_COLOR));
         bottomPanel.add(scrollD);
 
-        // Manager feedback notes
         JTextArea areaComment = new JTextArea(comment);
         areaComment.setEditable(false);
         areaComment.setLineWrap(true);
