@@ -21,7 +21,6 @@ public class EmployeeFrame extends JFrame implements ActionListener {
 
     private JLabel lblERS, lblRequestHeading, lblrequestType, lbldescription;
 
-    
     private String currentUserId;
     private String currentUserName;
     private final String CURRENT_DEPARTMENT = "Technical";
@@ -47,7 +46,6 @@ public class EmployeeFrame extends JFrame implements ActionListener {
         getContentPane().setBackground(new Color(245, 245, 245));
         setIconImage(new ImageIcon("src\\main\\java\\images\\StaffSyncLogo16.png").getImage());
 
-       
         sideNav = new JPanel();
         sideNav.setSize(260, 1000);
         sideNav.setBackground(SIDEBAR_BG);
@@ -73,7 +71,6 @@ public class EmployeeFrame extends JFrame implements ActionListener {
         lblLogo.setBounds(66, 185, 128, 128);
         sideNav.add(lblLogo);
 
-        
         int buttonWidth = 200;
         int buttonHeight = 45;
         int cornerRadius = 20;
@@ -120,7 +117,6 @@ public class EmployeeFrame extends JFrame implements ActionListener {
         btnSignout.setFont(new Font("Segoe UI", Font.BOLD, 13));
         sideNav.add(btnSignout);
 
-       
         lblERS = new JLabel("Employee Request System");
         lblERS.setFont(new Font("Segoe UI", Font.BOLD, 24));
         lblERS.setForeground(BACKGROUND_TEXT_COLOR);
@@ -133,7 +129,6 @@ public class EmployeeFrame extends JFrame implements ActionListener {
         lblRequestHeading.setBounds(300, 85, 300, 30);
         add(lblRequestHeading);
 
-       
         lblrequestType = new JLabel("Request Type:");
         lblrequestType.setBounds(300, 140, 120, 30);
         lblrequestType.setFont(new Font("Segoe UI", Font.BOLD, 14));
@@ -165,7 +160,6 @@ public class EmployeeFrame extends JFrame implements ActionListener {
         descScroll.setBorder(new LineBorder(new Color(215, 219, 221), 1));
         add(descScroll);
 
-        
         String[] cols = {
             "Req ID", "Employee ID", "Employee Name", "Department", "Role", "Request Type", "Description", "Status", "Notes"
         };
@@ -199,14 +193,12 @@ public class EmployeeFrame extends JFrame implements ActionListener {
         scroll.getViewport().setBackground(Color.WHITE);
         add(scroll);
 
-        
         for (int i = 0; i < table.getColumnCount(); i++) {
             table.getColumnModel().getColumn(i).setPreferredWidth(115);
         }
-        table.getColumnModel().getColumn(6).setPreferredWidth(200); 
-        table.getColumnModel().getColumn(8).setPreferredWidth(200); 
+        table.getColumnModel().getColumn(6).setPreferredWidth(200);
+        table.getColumnModel().getColumn(8).setPreferredWidth(200);
 
-        
         btnSubmit.addActionListener(this);
         btnUpdate.addActionListener(this);
         btnDelete.addActionListener(this);
@@ -220,7 +212,6 @@ public class EmployeeFrame extends JFrame implements ActionListener {
         setVisible(true);
     }
 
-    
     private static class RoundedButton extends JButton {
 
         private int radius;
@@ -474,10 +465,11 @@ public class EmployeeFrame extends JFrame implements ActionListener {
         int row = table.getSelectedRow();
 
         if (row == -1) {
-            JOptionPane.showMessageDialog(this, "Select a request first.", "Selection Error", JOptionPane.WARNING_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Select a request from the table first.", "Selection Error", JOptionPane.WARNING_MESSAGE);
             return;
         }
 
+        // Extracting data exactly from table values
         String reqID = tableModel.getValueAt(row, 0).toString();
         String empID = tableModel.getValueAt(row, 1).toString();
         String empName = tableModel.getValueAt(row, 2).toString();
@@ -488,24 +480,109 @@ public class EmployeeFrame extends JFrame implements ActionListener {
         String status = tableModel.getValueAt(row, 7).toString();
         String comment = tableModel.getValueAt(row, 8).toString();
 
-        String message
-                = "EMPLOYEE DETAILS\n"
-                + "━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
-                + "• ID: " + empID + "\n"
-                + "• Name: " + empName + "\n"
-                + "• Department: " + department + "\n"
-                + "• Role: " + role + "\n\n"
-                + "REQUEST DETAILS\n"
-                + "━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
-                + "• Req ID: " + reqID + "\n"
-                + "• Type: " + type + "\n"
-                + "• Description: " + desc + "\n"
-                + "• Status: " + status + "\n\n"
-                + "MANAGER COMMENT\n"
-                + "━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
-                + comment;
+        // Building stylized modern panel
+        JPanel container = new JPanel();
+        container.setLayout(new BorderLayout(15, 15));
+        container.setPreferredSize(new Dimension(520, 380));
+        container.setBorder(new EmptyBorder(10, 10, 10, 10));
 
-        JOptionPane.showMessageDialog(this, message, "Ticket Information Window", JOptionPane.INFORMATION_MESSAGE);
+        // Metainfo Left Container
+        JPanel leftPanel = new JPanel();
+        leftPanel.setLayout(new GridLayout(5, 1, 5, 5));
+        leftPanel.setBorder(BorderFactory.createTitledBorder(new LineBorder(new Color(215, 219, 221), 1), " Ticket Metainfo ", 0, 0, new Font("Segoe UI", Font.BOLD, 12), BACKGROUND_TEXT_COLOR));
+        leftPanel.setPreferredSize(new Dimension(230, 200));
+
+        String[][] profileMeta = {
+            {"Ticket ID:", " #" + reqID},
+            {"Staff ID:", " " + empID},
+            {"Full Name:", " " + empName},
+            {"Dept:", " " + department},
+            {"Designation:", " " + role}
+        };
+
+        for (String[] data : profileMeta) {
+            JPanel line = new JPanel(new BorderLayout());
+            JLabel title = new JLabel(data[0]);
+            title.setFont(new Font("Segoe UI", Font.BOLD, 12));
+            title.setForeground(Color.GRAY);
+            JLabel val = new JLabel(data[1]);
+            val.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+            val.setForeground(BACKGROUND_TEXT_COLOR);
+            line.add(title, BorderLayout.WEST);
+            line.add(val, BorderLayout.CENTER);
+            leftPanel.add(line);
+        }
+
+        // Operational Right Container
+        JPanel rightPanel = new JPanel();
+        rightPanel.setLayout(new GridLayout(2, 1, 5, 5));
+        rightPanel.setPreferredSize(new Dimension(230, 200));
+        rightPanel.setBorder(BorderFactory.createTitledBorder(new LineBorder(new Color(215, 219, 221), 1), " Category & Status ", 0, 0, new Font("Segoe UI", Font.BOLD, 12), BACKGROUND_TEXT_COLOR));
+
+        JPanel typeLine = new JPanel(new BorderLayout());
+        JLabel lblT = new JLabel("Category: ");
+        lblT.setFont(new Font("Segoe UI", Font.BOLD, 12));
+        lblT.setForeground(Color.GRAY);
+        JLabel valT = new JLabel(type);
+        valT.setFont(new Font("Segoe UI", Font.BOLD, 13));
+        valT.setForeground(ACCENT_BLUE);
+        typeLine.add(lblT, BorderLayout.WEST);
+        typeLine.add(valT, BorderLayout.CENTER);
+
+        JPanel statusLine = new JPanel(new BorderLayout());
+        JLabel lblS = new JLabel("Status: ");
+        lblS.setFont(new Font("Segoe UI", Font.BOLD, 12));
+        lblS.setForeground(Color.GRAY);
+        JLabel valS = new JLabel(status);
+        valS.setFont(new Font("Segoe UI", Font.BOLD, 13));
+
+        // Dynamically style status text
+        if (status.equalsIgnoreCase("Approved")) {
+            valS.setForeground(SUCCESS_GREEN);
+        } else if (status.equalsIgnoreCase("Pending")) {
+            valS.setForeground(new Color(241, 196, 15));
+        } else {
+            valS.setForeground(DANGER_RED);
+        }
+        statusLine.add(lblS, BorderLayout.WEST);
+        statusLine.add(valS, BorderLayout.CENTER);
+
+        rightPanel.add(typeLine);
+        rightPanel.add(statusLine);
+
+        // Top structural wrap split
+        JPanel splitTop = new JPanel(new GridLayout(1, 2, 10, 10));
+        splitTop.add(leftPanel);
+        splitTop.add(rightPanel);
+        container.add(splitTop, BorderLayout.NORTH);
+
+        // Lower multi-lined components mapping
+        JPanel bottomPanel = new JPanel();
+        bottomPanel.setLayout(new GridLayout(2, 1, 10, 10));
+
+        // Description area
+        JTextArea areaDesc = new JTextArea(desc);
+        areaDesc.setEditable(false);
+        areaDesc.setLineWrap(true);
+        areaDesc.setWrapStyleWord(true);
+        areaDesc.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+        JScrollPane scrollD = new JScrollPane(areaDesc);
+        scrollD.setBorder(BorderFactory.createTitledBorder(new LineBorder(new Color(215, 219, 221), 1), " Staff Description Details ", 0, 0, new Font("Segoe UI", Font.BOLD, 11), BACKGROUND_TEXT_COLOR));
+        bottomPanel.add(scrollD);
+
+        // Manager feedback notes
+        JTextArea areaComment = new JTextArea(comment);
+        areaComment.setEditable(false);
+        areaComment.setLineWrap(true);
+        areaComment.setWrapStyleWord(true);
+        areaComment.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+        JScrollPane scrollC = new JScrollPane(areaComment);
+        scrollC.setBorder(BorderFactory.createTitledBorder(new LineBorder(new Color(215, 219, 221), 1), " Management Feedback Notes ", 0, 0, new Font("Segoe UI", Font.BOLD, 11), BACKGROUND_TEXT_COLOR));
+        bottomPanel.add(scrollC);
+
+        container.add(bottomPanel, BorderLayout.CENTER);
+
+        JOptionPane.showMessageDialog(this, container, "Ticket Details - Request #" + reqID, JOptionPane.PLAIN_MESSAGE);
     }
 
     private void clearFields() {
