@@ -2,14 +2,22 @@ package com.mycompany.employeemanagementsystem3;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.awt.geom.RoundRectangle2D;
 import java.sql.*;
 import javax.swing.*;
+import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableRowSorter;
 
 public class EmployeeFrameReviewView extends JFrame implements ActionListener {
+
+    private final Color ACCENT_BLUE = new Color(52, 152, 219);
+    private final Color DANGER_RED = new Color(231, 76, 60);
+    private final Color SIDEBAR_BG = new Color(34, 45, 57);
+    private final Color sidebarDarkGray = new Color(33, 47, 61);
+    private final Color BACKGROUND_TEXT_COLOR = new Color(44, 62, 80);
 
     private JPanel sideBar, mainContent;
     private JTable reviewsTable;
@@ -37,6 +45,7 @@ public class EmployeeFrameReviewView extends JFrame implements ActionListener {
         setLocationRelativeTo(null);
         setResizable(false);
         setLayout(null);
+        getContentPane().setBackground(new Color(245, 245, 245));
 
         try {
             setIconImage(new ImageIcon("src\\main\\java\\images\\StaffSyncLogo16.png").getImage());
@@ -44,10 +53,12 @@ public class EmployeeFrameReviewView extends JFrame implements ActionListener {
             System.err.println("Warning: Taskbar mini icon failed to load. " + ex.getMessage());
         }
 
+        // --- SIDEBAR NAVIGATION PANEL ---
         sideBar = new JPanel();
-        sideBar.setBackground(new Color(33, 47, 61));
-        sideBar.setBounds(0, 0, 250, 1000);
+        sideBar.setBackground(SIDEBAR_BG);
+        sideBar.setBounds(0, 0, 260, 1000);
         sideBar.setLayout(null);
+        add(sideBar);
 
         try {
             ImageIcon rawIcon = new ImageIcon("src\\main\\java\\images\\pfp.png");
@@ -65,7 +76,7 @@ public class EmployeeFrameReviewView extends JFrame implements ActionListener {
         JLabel lblUser = new JLabel(CURRENT_ROLE + " | " + currentUserName, SwingConstants.CENTER);
         lblUser.setForeground(Color.LIGHT_GRAY);
         lblUser.setFont(new Font("Segoe UI", Font.BOLD, 14));
-        lblUser.setBounds(30, 140, 200, 25);
+        lblUser.setBounds(20, 140, 220, 25);
         sideBar.add(lblUser);
 
         try {
@@ -77,38 +88,48 @@ public class EmployeeFrameReviewView extends JFrame implements ActionListener {
             System.err.println("Warning: Branding logo failed to initialize. " + ex.getMessage());
         }
 
-        btnBack = createStyledBtn("← Back to Dashboard", 340, new Color(52, 152, 219));
+        // Button dimensions matching overall layout configuration parameters
+        int buttonWidth = 200;
+        int buttonHeight = 45;
+        int cornerRadius = 20;
+
+        btnBack = new RoundedButton("← Back to Dashboard", cornerRadius);
+        btnBack.setBounds(30, 340, buttonWidth, buttonHeight);
+        btnBack.setBackground(ACCENT_BLUE);
+        btnBack.setForeground(Color.WHITE);
+        btnBack.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        btnBack.addActionListener(this);
         sideBar.add(btnBack);
 
-        btnSignOut = new JButton("Sign out →");
-        btnSignOut.setBounds(35, 890, 180, 50);
-        btnSignOut.setBackground(Color.RED);
+        btnSignOut = new RoundedButton("Sign out →", cornerRadius);
+        btnSignOut.setBounds(40, 880, 180, buttonHeight);
+        btnSignOut.setBackground(new Color(192, 57, 43));
         btnSignOut.setForeground(Color.WHITE);
-        btnSignOut.setFocusPainted(false);
-        btnSignOut.setBorderPainted(false);
-        btnSignOut.setFont(new Font("SansSerif", Font.BOLD, 13));
-        btnSignOut.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        btnSignOut.setFont(new Font("Segoe UI", Font.BOLD, 13));
         btnSignOut.addActionListener(this);
         sideBar.add(btnSignOut);
 
+        // --- MAIN DASHBOARD CONTENT AREA ---
         mainContent = new JPanel();
         mainContent.setBackground(new Color(245, 245, 245));
         mainContent.setLayout(null);
-        mainContent.setBounds(250, 0, 750, 1000);
-
-        Color sidebarDarkGray = new Color(33, 47, 61);
+        mainContent.setBounds(260, 0, 740, 1000);
+        add(mainContent);
 
         JLabel lblHeaderMeta = new JLabel("My Performance Evaluation History");
-        lblHeaderMeta.setBounds(30, 45, 400, 32);
-        lblHeaderMeta.setFont(new Font("SansSerif", Font.BOLD, 18));
-        lblHeaderMeta.setForeground(sidebarDarkGray);
+        lblHeaderMeta.setBounds(30, 35, 400, 32);
+        lblHeaderMeta.setFont(new Font("Segoe UI", Font.BOLD, 22));
+        lblHeaderMeta.setForeground(BACKGROUND_TEXT_COLOR);
         mainContent.add(lblHeaderMeta);
 
         txtSearch = new JTextField(" Search reviews...");
-        txtSearch.setBounds(440, 45, 280, 32);
-        txtSearch.setFont(new Font("SansSerif", Font.PLAIN, 13));
+        txtSearch.setBounds(430, 35, 280, 32);
+        txtSearch.setFont(new Font("Segoe UI", Font.PLAIN, 13));
         txtSearch.setForeground(Color.GRAY);
-        txtSearch.setBorder(BorderFactory.createLineBorder(new Color(200, 200, 200), 1));
+        txtSearch.setBorder(BorderFactory.createCompoundBorder(
+                new LineBorder(new Color(215, 219, 221), 1),
+                BorderFactory.createEmptyBorder(0, 10, 0, 10)
+        ));
 
         txtSearch.addFocusListener(new FocusAdapter() {
             @Override
@@ -147,6 +168,7 @@ public class EmployeeFrameReviewView extends JFrame implements ActionListener {
         reviewsTable = new JTable(model);
         reviewsTable.setRowHeight(85);
         reviewsTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+        reviewsTable.setFont(new Font("Segoe UI", Font.PLAIN, 13));
 
         tableSorter = new TableRowSorter<>(model);
         reviewsTable.setRowSorter(tableSorter);
@@ -165,33 +187,31 @@ public class EmployeeFrameReviewView extends JFrame implements ActionListener {
 
         reviewsTable.getTableHeader().setBackground(sidebarDarkGray);
         reviewsTable.getTableHeader().setForeground(Color.WHITE);
-        reviewsTable.getTableHeader().setFont(new Font("SansSerif", Font.BOLD, 13));
+        reviewsTable.getTableHeader().setFont(new Font("Segoe UI", Font.BOLD, 13));
 
         Dimension headerSize = reviewsTable.getTableHeader().getPreferredSize();
         headerSize.height = 50;
         reviewsTable.getTableHeader().setPreferredSize(headerSize);
 
-        reviewsTable.setSelectionBackground(new Color(52, 152, 219, 40));
+        reviewsTable.setSelectionBackground(new Color(52, 152, 219, 30));
         reviewsTable.setSelectionForeground(Color.BLACK);
-        reviewsTable.setShowVerticalLines(true);
-        reviewsTable.setGridColor(new Color(200, 200, 200));
+        reviewsTable.setShowVerticalLines(false);
+        reviewsTable.setGridColor(new Color(230, 233, 235));
 
         reviewsTable.getColumnModel().getColumn(0).setCellRenderer(new MultiLineCellRenderer());
 
-        reviewsTable.getColumnModel().getColumn(0).setPreferredWidth(320);
+        reviewsTable.getColumnModel().getColumn(0).setPreferredWidth(310);
         reviewsTable.getColumnModel().getColumn(1).setPreferredWidth(90);
         reviewsTable.getColumnModel().getColumn(2).setPreferredWidth(110);
         reviewsTable.getColumnModel().getColumn(3).setPreferredWidth(90);
         reviewsTable.getColumnModel().getColumn(4).setPreferredWidth(90);
 
-        JScrollPane scrollPane = new JScrollPane(reviewsTable);
-        scrollPane.setBounds(30, 100, 690, 750); // Pinalaki pababa ang table area
-        scrollPane.setBorder(BorderFactory.createLineBorder(new Color(200, 200, 200)));
-        scrollPane.getViewport().setBackground(new Color(245, 245, 245));
+        JScrollPane scrollPane = new JScrollPane(reviewsTable, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+        scrollPane.setBounds(30, 95, 680, 835);
+        scrollPane.setBorder(new LineBorder(new Color(215, 219, 221), 1));
+        scrollPane.getViewport().setBackground(Color.WHITE);
         mainContent.add(scrollPane);
 
-        add(sideBar);
-        add(mainContent);
         setVisible(true);
     }
 
@@ -208,51 +228,60 @@ public class EmployeeFrameReviewView extends JFrame implements ActionListener {
                 throw new SQLException("Database connection link is unestablished.");
             }
             try (PreparedStatement pstmt = conn.prepareStatement(query)) {
-                pstmt.setString(1, currentUserId); // Sariling ID ng employee ang hinahanap natin
+                pstmt.setString(1, currentUserId);
 
                 try (ResultSet rs = pstmt.executeQuery()) {
                     while (rs.next()) {
+                        // Safe extraction logic using getObject to prevent explicit type mismatches
                         model.addRow(new Object[]{
                             rs.getString("details"),
-                            rs.getBigDecimal("behavior"),
-                            rs.getBigDecimal("communication"),
-                            rs.getBigDecimal("management"),
-                            rs.getBigDecimal("development")
+                            rs.getObject("behavior") != null ? rs.getObject("behavior") : "N/A",
+                            rs.getObject("communication") != null ? rs.getObject("communication") : "N/A",
+                            rs.getObject("management") != null ? rs.getObject("management") : "N/A",
+                            rs.getObject("development") != null ? rs.getObject("development") : "N/A"
                         });
                     }
                 }
             }
         } catch (SQLException ex) {
             ex.printStackTrace();
-            JOptionPane.showMessageDialog(this, "SQL Syntax Error: Check table data bindings.\nDetails: " + ex.getMessage(), "Database Error", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, "SQL Data Binding Error.\nDetails: " + ex.getMessage(), "Database Error", JOptionPane.ERROR_MESSAGE);
         } catch (Exception ex) {
             ex.printStackTrace();
-            JOptionPane.showMessageDialog(this, "An unexpected data parsing exception occurred: " + ex.getMessage(), "System Error", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, "An unexpected data parsing error occurred: " + ex.getMessage(), "System Error", JOptionPane.ERROR_MESSAGE);
         }
     }
 
-    private JButton createStyledBtn(String text, int y, Color color) {
-        JButton b = new JButton(text) {
-            @Override
-            protected void paintComponent(Graphics g) {
-                Graphics2D g2 = (Graphics2D) g.create();
-                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+    // --- REUSABLE CORNER RADIUS STRUCTURE INNER CLASS ---
+    private static class RoundedButton extends JButton {
+        private int radius;
+
+        public RoundedButton(String text, int radius) {
+            super(text);
+            this.radius = radius;
+            setContentAreaFilled(false);
+            setFocusPainted(false);
+            setBorderPainted(false);
+            setCursor(new Cursor(Cursor.HAND_CURSOR));
+        }
+
+        @Override
+        protected void paintComponent(Graphics g) {
+            Graphics2D g2 = (Graphics2D) g.create();
+            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+            
+            if (getModel().isPressed()) {
+                g2.setColor(getBackground().darker());
+            } else if (getModel().isRollover()) {
+                g2.setColor(getBackground().brighter());
+            } else {
                 g2.setColor(getBackground());
-                g2.fillRoundRect(0, 0, getWidth(), getHeight(), 10, 10);
-                super.paintComponent(g);
-                g2.dispose();
             }
-        };
-        b.setBounds(25, y, 200, 45);
-        b.setBackground(color);
-        b.setForeground(Color.WHITE);
-        b.setFont(new Font("Segoe UI", Font.BOLD, 14));
-        b.setFocusPainted(false);
-        b.setBorderPainted(false);
-        b.setContentAreaFilled(false);
-        b.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        b.addActionListener(this);
-        return b;
+            
+            g2.fill(new RoundRectangle2D.Double(0, 0, getWidth(), getHeight(), radius, radius));
+            g2.dispose();
+            super.paintComponent(g);
+        }
     }
 
     @Override
@@ -278,7 +307,8 @@ public class EmployeeFrameReviewView extends JFrame implements ActionListener {
             setWrapStyleWord(true);
             setOpaque(true);
             setMargin(new Insets(5, 5, 5, 5));
-            setFont(new Font("SansSerif", Font.PLAIN, 13));
+            setFont(new Font("Segoe UI", Font.PLAIN, 13));
+            setBorder(new EmptyBorder(5, 5, 5, 5));
         }
 
         @Override
