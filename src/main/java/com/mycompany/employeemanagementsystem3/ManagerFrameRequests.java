@@ -12,7 +12,6 @@ import javax.swing.RowFilter;
 public class ManagerFrameRequests extends JFrame implements ActionListener {
 
     private JPanel sideBar, mainContent;
-    // --- NEW: Added btnViewMyReviews to the declaration ---
     private JTable requestTable;
     private JButton btnViewDetails, btnApprove, btnDeny, btnSignOut, btnViewMyReviews;
 
@@ -72,51 +71,19 @@ public class ManagerFrameRequests extends JFrame implements ActionListener {
             System.err.println("Warning: Secondary branding asset missing.");
         }
 
-        btnViewDetails = new JButton("View Details");
-        btnViewDetails.setBounds(35, 340, 180, 45);
-        btnViewDetails.setBackground(new Color(52, 152, 219)); // Deep sky blue matching theme
-        btnViewDetails.setForeground(Color.WHITE);
-        btnViewDetails.setFont(new Font("Segoe UI", Font.BOLD, 13));
-        btnViewDetails.setFocusPainted(false);
-        btnViewDetails.setBorderPainted(false);
-        btnViewDetails.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        btnViewDetails.addActionListener(this);
+         
+        btnViewDetails = createStyledBtn("View Details", 340, new Color(52, 152, 219));  
         sideBar.add(btnViewDetails);
 
-        btnApprove = new JButton("Approve Request");
-        btnApprove.setBounds(35, 400, 180, 45);
-        btnApprove.setBackground(new Color(40, 167, 69));
-        btnApprove.setForeground(Color.WHITE);
-        btnApprove.setFont(new Font("Segoe UI", Font.BOLD, 13));
-        btnApprove.setFocusPainted(false);
-        btnApprove.setBorderPainted(false);
-        btnApprove.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        btnApprove.addActionListener(this);
+        btnApprove = createStyledBtn("Approve Request", 400, new Color(40, 167, 69));  
         sideBar.add(btnApprove);
 
-        btnDeny = new JButton("Deny Request");
-        btnDeny.setBounds(35, 460, 180, 45);
-        btnDeny.setBackground(new Color(231, 76, 60));
-        btnDeny.setForeground(Color.WHITE);
-        btnDeny.setFont(new Font("Segoe UI", Font.BOLD, 13));
-        btnDeny.setFocusPainted(false);
-        btnDeny.setBorderPainted(false);
-        btnDeny.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        btnDeny.addActionListener(this);
+        btnDeny = createStyledBtn("Deny Request", 460, new Color(231, 76, 60));  
         sideBar.add(btnDeny);
         
-        // --- NEW: View My Reviews Button (Positioned below Deny Request) ---
-        btnViewMyReviews = new JButton("View My Reviews");
-        btnViewMyReviews.setBounds(35, 520, 180, 45);
-        btnViewMyReviews.setBackground(new Color(155, 89, 182)); // Amethyst purple to stand out
-        btnViewMyReviews.setForeground(Color.WHITE);
-        btnViewMyReviews.setFont(new Font("Segoe UI", Font.BOLD, 13));
-        btnViewMyReviews.setFocusPainted(false);
-        btnViewMyReviews.setBorderPainted(false);
-        btnViewMyReviews.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        btnViewMyReviews.addActionListener(this);
+        btnViewMyReviews = createStyledBtn("View My Reviews", 520, new Color(52, 152, 219));  
         sideBar.add(btnViewMyReviews);
-        // -------------------------------------------------------------------
+         
 
         btnSignOut = new JButton("Sign out →");
         btnSignOut.setBounds(35, 890, 180, 50);
@@ -301,11 +268,36 @@ public class ManagerFrameRequests extends JFrame implements ActionListener {
         } else if (e.getSource() == btnSignOut) {
             dispose();
             new LoginFrame();
-        // --- NEW: Open the Review Viewer when clicked ---
         } else if (e.getSource() == btnViewMyReviews) {
             dispose();
              new ManagerFrameRequestsView(currentUserId, currentUserName);
         }
-        // ------------------------------------------------
+    }
+
+    
+    private JButton createStyledBtn(String text, int y, Color color) {
+        JButton b = new JButton(text) {
+            @Override
+            protected void paintComponent(Graphics g) {
+                Graphics2D g2 = (Graphics2D) g.create();
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                g2.setColor(getBackground());
+                // dictates the precise rounded corner radius (10, 10)
+                g2.fillRoundRect(0, 0, getWidth(), getHeight(), 10, 10);
+                super.paintComponent(g);
+                g2.dispose();
+            }
+        };
+         
+        b.setBounds(25, y, 200, 45); 
+        b.setBackground(color);
+        b.setForeground(Color.WHITE);
+        b.setFont(new Font("Segoe UI", Font.BOLD, 13));
+        b.setFocusPainted(false);
+        b.setBorderPainted(false);
+        b.setContentAreaFilled(false);  
+        b.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        b.addActionListener(this);
+        return b;
     }
 }
