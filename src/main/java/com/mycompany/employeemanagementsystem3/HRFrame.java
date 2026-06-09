@@ -324,7 +324,16 @@ public class HRFrame extends JFrame implements ActionListener {
                 pstmt.setString(1, empId);
                 pstmt.executeUpdate();
                 model.removeRow(viewRowIndex);
-                showModernMsg("Employee record deleted from storage successfully.", "Success");
+                
+                // --- NEW: Check if the deleted account belongs to the currently logged-in user ---
+                if (empId.equals(this.loggedInUserId)) {
+                    showModernMsg("You have deleted your own account. The system will now log you out.", "Session Terminated");
+                    dispose(); // Close current window
+                    new LoginFrame(); // Route them back to the login screen
+                } else {
+                    showModernMsg("Employee record deleted from storage successfully.", "Success");
+                }
+                // ---------------------------------------------------------------------------------
             }
         } catch (SQLException ex) {
             ex.printStackTrace();
