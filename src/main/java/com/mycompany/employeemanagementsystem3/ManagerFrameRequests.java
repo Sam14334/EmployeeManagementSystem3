@@ -12,8 +12,9 @@ import javax.swing.RowFilter;
 public class ManagerFrameRequests extends JFrame implements ActionListener {
 
     private JPanel sideBar, mainContent;
+    // --- NEW: Added btnViewMyReviews to the declaration ---
     private JTable requestTable;
-    private JButton btnViewDetails, btnApprove, btnDeny, btnSignOut;
+    private JButton btnViewDetails, btnApprove, btnDeny, btnSignOut, btnViewMyReviews;
 
     private JTextField txtSearch;
     private TableRowSorter<DefaultTableModel> tableSorter;
@@ -103,6 +104,19 @@ public class ManagerFrameRequests extends JFrame implements ActionListener {
         btnDeny.setCursor(new Cursor(Cursor.HAND_CURSOR));
         btnDeny.addActionListener(this);
         sideBar.add(btnDeny);
+        
+        // --- NEW: View My Reviews Button (Positioned below Deny Request) ---
+        btnViewMyReviews = new JButton("View My Reviews");
+        btnViewMyReviews.setBounds(35, 520, 180, 45);
+        btnViewMyReviews.setBackground(new Color(155, 89, 182)); // Amethyst purple to stand out
+        btnViewMyReviews.setForeground(Color.WHITE);
+        btnViewMyReviews.setFont(new Font("Segoe UI", Font.BOLD, 13));
+        btnViewMyReviews.setFocusPainted(false);
+        btnViewMyReviews.setBorderPainted(false);
+        btnViewMyReviews.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        btnViewMyReviews.addActionListener(this);
+        sideBar.add(btnViewMyReviews);
+        // -------------------------------------------------------------------
 
         btnSignOut = new JButton("Sign out →");
         btnSignOut.setBounds(35, 890, 180, 50);
@@ -287,6 +301,11 @@ public class ManagerFrameRequests extends JFrame implements ActionListener {
         } else if (e.getSource() == btnSignOut) {
             dispose();
             new LoginFrame();
+        // --- NEW: Open the Review Viewer when clicked ---
+        } else if (e.getSource() == btnViewMyReviews) {
+            dispose();
+             new ManagerFrameRequestsView(currentUserId, currentUserName);
         }
+        // ------------------------------------------------
     }
 }
