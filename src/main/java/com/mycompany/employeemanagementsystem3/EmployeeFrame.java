@@ -21,7 +21,7 @@ public class EmployeeFrame extends JFrame implements ActionListener {
 
     private JLabel lblERS, lblRequestHeading, lblrequestType, lbldescription;
 
-    // User Session Data
+    
     private String currentUserId;
     private String currentUserName;
     private final String CURRENT_DEPARTMENT = "Technical";
@@ -47,7 +47,7 @@ public class EmployeeFrame extends JFrame implements ActionListener {
         getContentPane().setBackground(new Color(245, 245, 245));
         setIconImage(new ImageIcon("src\\main\\java\\images\\StaffSyncLogo16.png").getImage());
 
-        // --- SIDEBAR NAVIGATION PANEL ---
+       
         sideNav = new JPanel();
         sideNav.setSize(260, 1000);
         sideNav.setBackground(SIDEBAR_BG);
@@ -73,7 +73,7 @@ public class EmployeeFrame extends JFrame implements ActionListener {
         lblLogo.setBounds(66, 185, 128, 128);
         sideNav.add(lblLogo);
 
-        // --- RE-STYLED ACTION BUTTONS WITH MATCHING BORDER RADIUS ---
+        
         int buttonWidth = 200;
         int buttonHeight = 45;
         int cornerRadius = 20;
@@ -120,7 +120,7 @@ public class EmployeeFrame extends JFrame implements ActionListener {
         btnSignout.setFont(new Font("Segoe UI", Font.BOLD, 13));
         sideNav.add(btnSignout);
 
-        // --- DASHBOARD CENTRAL CONTENT HEADER AREA ---
+       
         lblERS = new JLabel("Employee Request System");
         lblERS.setFont(new Font("Segoe UI", Font.BOLD, 24));
         lblERS.setForeground(BACKGROUND_TEXT_COLOR);
@@ -133,7 +133,7 @@ public class EmployeeFrame extends JFrame implements ActionListener {
         lblRequestHeading.setBounds(300, 85, 300, 30);
         add(lblRequestHeading);
 
-        // --- INPUT COMPONENT LAYOUT ---
+       
         lblrequestType = new JLabel("Request Type:");
         lblrequestType.setBounds(300, 140, 120, 30);
         lblrequestType.setFont(new Font("Segoe UI", Font.BOLD, 14));
@@ -165,7 +165,7 @@ public class EmployeeFrame extends JFrame implements ActionListener {
         descScroll.setBorder(new LineBorder(new Color(215, 219, 221), 1));
         add(descScroll);
 
-        // --- DATA VISUALIZATION TABLE VIEW AREA ---
+        
         String[] cols = {
             "Req ID", "Employee ID", "Employee Name", "Department", "Role", "Request Type", "Description", "Status", "Notes"
         };
@@ -199,14 +199,14 @@ public class EmployeeFrame extends JFrame implements ActionListener {
         scroll.getViewport().setBackground(Color.WHITE);
         add(scroll);
 
-        // Resize relative target sizing metrics
+        
         for (int i = 0; i < table.getColumnCount(); i++) {
             table.getColumnModel().getColumn(i).setPreferredWidth(115);
         }
-        table.getColumnModel().getColumn(6).setPreferredWidth(200); // Description
-        table.getColumnModel().getColumn(8).setPreferredWidth(200); // Notes
+        table.getColumnModel().getColumn(6).setPreferredWidth(200); 
+        table.getColumnModel().getColumn(8).setPreferredWidth(200); 
 
-        // Wire Listeners
+        
         btnSubmit.addActionListener(this);
         btnUpdate.addActionListener(this);
         btnDelete.addActionListener(this);
@@ -220,7 +220,7 @@ public class EmployeeFrame extends JFrame implements ActionListener {
         setVisible(true);
     }
 
-    // --- INNER CLASS: Custom Rounded Button to match design profiles ---
+    
     private static class RoundedButton extends JButton {
 
         private int radius;

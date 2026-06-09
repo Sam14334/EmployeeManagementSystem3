@@ -14,7 +14,6 @@ public class ViewRequestDetailsFrame extends JDialog {
         setLocationRelativeTo(parent);
         setResizable(false);
         
-        // --- MODIFIED: Set the main background to pure White ---
         getContentPane().setBackground(Color.WHITE);
 
         Color statusColor = Color.LIGHT_GRAY;
@@ -32,7 +31,6 @@ public class ViewRequestDetailsFrame extends JDialog {
         lblTitle.setBounds(30, 20, 460, 30);
         add(lblTitle);
 
-        // --- MODIFIED: Text colors changed to Dark Gray so they are visible on white ---
         JLabel lblEmp = new JLabel("Employee Name: " + empName);
         lblEmp.setFont(new Font("Segoe UI", Font.PLAIN, 14));
         lblEmp.setForeground(Color.DARK_GRAY);
@@ -63,7 +61,6 @@ public class ViewRequestDetailsFrame extends JDialog {
         lblDescTitle.setBounds(30, 155, 460, 20);
         add(lblDescTitle);
 
-        // --- MODIFIED: Text areas changed to an off-white background with black text ---
         JTextArea txtDesc = new JTextArea(desc);
         txtDesc.setFont(new Font("SansSerif", Font.PLAIN, 13));
         txtDesc.setBackground(new Color(245, 245, 245)); 
@@ -73,7 +70,6 @@ public class ViewRequestDetailsFrame extends JDialog {
         txtDesc.setWrapStyleWord(true);
         txtDesc.setBorder(BorderFactory.createEmptyBorder(6, 6, 6, 6));
 
-        // --- MODIFIED: Lighter border color for the scroll panes ---
         JScrollPane scrollDesc = new JScrollPane(txtDesc);
         scrollDesc.setBounds(30, 180, 445, 110);
         scrollDesc.setBorder(new MatteBorder(1, 1, 1, 1, new Color(200, 200, 200))); 

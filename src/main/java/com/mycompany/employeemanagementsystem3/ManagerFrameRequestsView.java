@@ -21,7 +21,6 @@ public class ManagerFrameRequestsView extends JFrame implements ActionListener {
     private String currentUserId;
     private String currentUserName;
 
-    // --- MODIFIED: Constructor only needs the logged-in user's info ---
     public ManagerFrameRequestsView(String loggedInUserId, String loggedInUserName) {
         this.currentUserId = loggedInUserId;
         this.currentUserName = loggedInUserName;
@@ -31,7 +30,6 @@ public class ManagerFrameRequestsView extends JFrame implements ActionListener {
     }
 
     private void initializeLayout() {
-        // --- MODIFIED: Title updated ---
         setTitle("StaffSync - Manager - My Performance Reviews");
         setSize(1000, 1000);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -78,7 +76,6 @@ public class ManagerFrameRequestsView extends JFrame implements ActionListener {
             System.err.println("Warning: Branding logo failed to initialize. " + ex.getMessage());
         }
 
-        // --- MODIFIED: Back button text updated ---
         btnBack = createStyledBtn("← Back to Dashboard", 340, new Color(52, 152, 219));
         sideBar.add(btnBack);
 
@@ -100,7 +97,6 @@ public class ManagerFrameRequestsView extends JFrame implements ActionListener {
 
         Color sidebarDarkGray = new Color(33, 47, 61);
 
-        // --- MODIFIED: Header text updated to reflect it is their own history ---
         JLabel lblHeaderMeta = new JLabel("My Performance Evaluation History");
         lblHeaderMeta.setBounds(30, 45, 400, 32);
         lblHeaderMeta.setFont(new Font("SansSerif", Font.BOLD, 18));
@@ -210,7 +206,6 @@ public class ManagerFrameRequestsView extends JFrame implements ActionListener {
                 throw new SQLException("Database connection link is unestablished.");
             }
             try (PreparedStatement pstmt = conn.prepareStatement(query)) {
-                // --- MODIFIED: Querying using the currently logged in Manager's ID ---
                 pstmt.setString(1, currentUserId); 
 
                 try (ResultSet rs = pstmt.executeQuery()) {
@@ -266,7 +261,6 @@ public class ManagerFrameRequestsView extends JFrame implements ActionListener {
                 new LoginFrame();
             } else if (e.getSource() == btnBack) {
                 dispose();
-                // --- MODIFIED: Routes back to the Manager's Request Dashboard ---
                 new ManagerFrameRequests(currentUserId, currentUserName);
             }
         } catch (Exception ex) {

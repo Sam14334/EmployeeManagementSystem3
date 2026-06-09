@@ -53,7 +53,7 @@ public class EmployeeFrameReviewView extends JFrame implements ActionListener {
             System.err.println("Warning: Taskbar mini icon failed to load. " + ex.getMessage());
         }
 
-        // --- SIDEBAR NAVIGATION PANEL ---
+        
         sideBar = new JPanel();
         sideBar.setBackground(SIDEBAR_BG);
         sideBar.setBounds(0, 0, 260, 1000);
@@ -88,7 +88,6 @@ public class EmployeeFrameReviewView extends JFrame implements ActionListener {
             System.err.println("Warning: Branding logo failed to initialize. " + ex.getMessage());
         }
 
-        // Button dimensions matching overall layout configuration parameters
         int buttonWidth = 200;
         int buttonHeight = 45;
         int cornerRadius = 20;
@@ -109,7 +108,6 @@ public class EmployeeFrameReviewView extends JFrame implements ActionListener {
         btnSignOut.addActionListener(this);
         sideBar.add(btnSignOut);
 
-        // --- MAIN DASHBOARD CONTENT AREA ---
         mainContent = new JPanel();
         mainContent.setBackground(new Color(245, 245, 245));
         mainContent.setLayout(null);
@@ -252,7 +250,6 @@ public class EmployeeFrameReviewView extends JFrame implements ActionListener {
         }
     }
 
-    // --- REUSABLE CORNER RADIUS STRUCTURE INNER CLASS ---
     private static class RoundedButton extends JButton {
         private int radius;
 

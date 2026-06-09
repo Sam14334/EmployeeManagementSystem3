@@ -24,7 +24,6 @@ public class ProcessRequestFrame extends JDialog implements ActionListener {
         setLocationRelativeTo(parent);
         setResizable(false);
         
-        // --- MODIFIED: Main Background to White ---
         getContentPane().setBackground(Color.WHITE);
 
         Color accentColor = actionType.equals("Approved") ? new Color(40, 167, 69) : new Color(231, 76, 60);
@@ -35,7 +34,6 @@ public class ProcessRequestFrame extends JDialog implements ActionListener {
         lblTitle.setBounds(30, 20, 440, 30);
         add(lblTitle);
 
-        // --- MODIFIED: Text colors changed to Dark Gray ---
         JLabel lblEmp = new JLabel("Employee Name: " + empName);
         lblEmp.setFont(new Font("Segoe UI", Font.PLAIN, 14));
         lblEmp.setForeground(Color.DARK_GRAY);
@@ -48,24 +46,21 @@ public class ProcessRequestFrame extends JDialog implements ActionListener {
         lblType.setBounds(30, 85, 440, 20);
         add(lblType);
 
-        // --- MODIFIED: Title changed to Black ---
         JLabel lblNotesHeader = new JLabel(actionType.equals("Approved") ? "Provide Approval Justification Note:" : "Provide Operational Reason for Denial:");
         lblNotesHeader.setFont(new Font("Segoe UI", Font.BOLD, 13));
         lblNotesHeader.setForeground(Color.BLACK);
         lblNotesHeader.setBounds(30, 125, 440, 20);
         add(lblNotesHeader);
 
-        // --- MODIFIED: Text Area changed to off-white background with black text ---
         txtNotes = new JTextArea();
         txtNotes.setFont(new Font("SansSerif", Font.PLAIN, 14));
         txtNotes.setBackground(new Color(245, 245, 245));
         txtNotes.setForeground(Color.BLACK);
-        txtNotes.setCaretColor(Color.BLACK); // Crucial: makes typing cursor visible on light bg
+        txtNotes.setCaretColor(Color.BLACK); 
         txtNotes.setLineWrap(true);
         txtNotes.setWrapStyleWord(true);
         txtNotes.setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
 
-        // --- MODIFIED: Scroll pane border changed to lighter gray ---
         JScrollPane scrollPane = new JScrollPane(txtNotes);
         scrollPane.setBounds(30, 150, 425, 140);
         scrollPane.setBorder(new MatteBorder(1, 1, 1, 1, new Color(200, 200, 200)));
