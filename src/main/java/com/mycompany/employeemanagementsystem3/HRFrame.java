@@ -315,7 +315,6 @@ public class HRFrame extends JFrame implements ActionListener {
     }
 
    private void deleteEmployeeFromDB(String empId, int viewRowIndex) {
-        // --- NEW: Queries to delete the child records first ---
         String deleteReviewsQuery = "DELETE FROM employee_reviews WHERE employee_id = ?";
         String deleteRequestsQuery = "DELETE FROM employee_requests WHERE employee_id = ?";
         String deleteEmployeeQuery = "DELETE FROM employees WHERE employee_id = ?";
@@ -325,19 +324,16 @@ public class HRFrame extends JFrame implements ActionListener {
                 throw new SQLException("Database interface endpoint connection lost.");
             }
             
-            // 1. Delete all Performance Reviews first
             try (PreparedStatement pstmtRev = conn.prepareStatement(deleteReviewsQuery)) {
                 pstmtRev.setString(1, empId);
                 pstmtRev.executeUpdate();
             }
             
-            // 2. Delete all Requests second
             try (PreparedStatement pstmtReq = conn.prepareStatement(deleteRequestsQuery)) {
                 pstmtReq.setString(1, empId);
                 pstmtReq.executeUpdate();
             }
             
-            // 3. Finally, delete the Employee record
             try (PreparedStatement pstmtEmp = conn.prepareStatement(deleteEmployeeQuery)) {
                 pstmtEmp.setString(1, empId);
                 pstmtEmp.executeUpdate();
@@ -349,7 +345,6 @@ public class HRFrame extends JFrame implements ActionListener {
                     dispose(); 
                     new LoginFrame(); 
                 } else {
-                    // Updated success message
                     showModernMsg("Employee account, reviews, and requests were all deleted successfully.", "Success");
                 }
             }

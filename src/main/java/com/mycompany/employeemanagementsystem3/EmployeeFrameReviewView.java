@@ -230,7 +230,6 @@ public class EmployeeFrameReviewView extends JFrame implements ActionListener {
 
                 try (ResultSet rs = pstmt.executeQuery()) {
                     while (rs.next()) {
-                        // Safe extraction logic using getObject to prevent explicit type mismatches
                         model.addRow(new Object[]{
                             rs.getString("details"),
                             rs.getObject("behavior") != null ? rs.getObject("behavior") : "N/A",
